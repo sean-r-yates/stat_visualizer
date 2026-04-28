@@ -1,0 +1,45 @@
+:root {
+  --bg: #07131b;
+  --bg-alt: #0d1f2d;
+  --panel: rgba(9, 27, 41, 0.84);
+  --panel-strong: rgba(5, 18, 29, 0.96);
+  --border: rgba(131, 176, 208, 0.2);
+  --text: #edf6ff;
+  --muted: #8fb0c7;
+  --accent: #4ecdc4;
+  --accent-2: #ff9f43;
+  --danger: #ff6b6b;
+  --shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
+  --font-heading: "Agency FB", "Arial Narrow", "Franklin Gothic Demi Cond", sans-serif;
+  --font-body: "Trebuchet MS", "Gill Sans", "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background:
+    radial-gradient(circle at top, rgba(78, 205, 196, 0.16), transparent 28%),
+    radial-gradient(circle at 80% 20%, rgba(255, 159, 67, 0.13), transparent 22%),
+    linear-gradient(180deg, #07131b 0%, #08141d 34%, #060f17 100%);
+  color: var(--text);
+}
+
+body {
+  font-family: var(--font-body), sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}

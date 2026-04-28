@@ -1,0 +1,10 @@
+.pageShell {
+  min-height: 100vh;
+  padding: 24px;
+}
+
+@media (max-width: 720px) {
+  .pageShell {
+    padding: 16px;
+  }
+}

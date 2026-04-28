@@ -1,0 +1,426 @@
+.dashboard {
+  display: grid;
+  gap: 24px;
+}
+
+.hero {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: minmax(0, 1.2fr) minmax(20rem, 0.8fr);
+  align-items: stretch;
+}
+
+.heroCopy,
+.statusPanel,
+.dropzone,
+.expectedProfitCard,
+.familySection,
+.terminalSection {
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+}
+
+.heroCopy {
+  padding: 28px;
+  background:
+    linear-gradient(140deg, rgba(22, 54, 82, 0.84), rgba(7, 19, 27, 0.95)),
+    var(--panel);
+}
+
+.kicker,
+.familyKey,
+.terminalKicker,
+.dropzoneLabel,
+.statusLabel,
+.expectedProfitLabel,
+.topProductsLabel {
+  margin: 0;
+  color: var(--accent);
+  font-family: var(--font-heading), sans-serif;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.heroTitle,
+.familyTitle,
+.terminalTitle {
+  margin: 0;
+  font-family: var(--font-heading), sans-serif;
+  letter-spacing: 0.05em;
+}
+
+.heroTitle {
+  margin-top: 10px;
+  font-size: clamp(2.4rem, 6vw, 4.4rem);
+  line-height: 0.92;
+}
+
+.heroText {
+  max-width: 48rem;
+  margin: 14px 0 0;
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.statusPanel,
+.expectedProfitCard,
+.terminalSection {
+  padding: 24px;
+}
+
+.statusHeader {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.statusValue,
+.expectedProfitValue {
+  font-family: var(--font-heading), sans-serif;
+  font-size: 2.8rem;
+  letter-spacing: 0.06em;
+}
+
+.statusGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 20px 0 0;
+}
+
+.statusGrid div,
+.topProductRow {
+  padding: 14px 16px;
+  border: 1px solid rgba(143, 176, 199, 0.14);
+  border-radius: 18px;
+  background: rgba(5, 18, 29, 0.72);
+}
+
+.statusGrid dt,
+.metricList dt {
+  color: var(--muted);
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.statusGrid dd,
+.metricList dd {
+  margin: 6px 0 0;
+}
+
+.topProducts {
+  margin-top: 18px;
+  display: grid;
+  gap: 10px;
+}
+
+.topProductsEmpty {
+  margin: 4px 0 0;
+  color: var(--muted);
+}
+
+.topProductRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.uploadStrip {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: minmax(0, 1fr) minmax(22rem, 0.95fr);
+}
+
+.dropzone {
+  display: grid;
+  gap: 20px;
+  align-items: center;
+  padding: 24px;
+  border-style: dashed;
+}
+
+.dropzoneActive {
+  border-color: rgba(78, 205, 196, 0.5);
+  box-shadow: 0 0 0 1px rgba(78, 205, 196, 0.24), var(--shadow);
+}
+
+.dropzoneText {
+  max-width: 40rem;
+  margin: 8px 0 0;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.dropzoneActions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.fileInput {
+  display: none;
+}
+
+.primaryButton,
+.secondaryButton,
+.ghostButton {
+  border-radius: 999px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition:
+    transform 160ms ease,
+    background 160ms ease,
+    border-color 160ms ease,
+    opacity 160ms ease;
+}
+
+.primaryButton:hover,
+.secondaryButton:hover,
+.ghostButton:hover {
+  transform: translateY(-1px);
+}
+
+.primaryButton:disabled,
+.ghostButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+  transform: none;
+}
+
+.primaryButton {
+  padding: 0.92rem 1.45rem;
+  background: linear-gradient(135deg, var(--accent), #2f79ff);
+  color: #03131a;
+  font-weight: 700;
+}
+
+.secondaryButton,
+.ghostButton {
+  padding: 0.72rem 1rem;
+  background: rgba(5, 18, 29, 0.72);
+  border-color: rgba(143, 176, 199, 0.18);
+  color: var(--text);
+}
+
+.ghostButton {
+  color: #ffd4d4;
+}
+
+.expectedProfitCard {
+  display: grid;
+  gap: 16px;
+  background:
+    linear-gradient(160deg, rgba(255, 159, 67, 0.18), rgba(5, 18, 29, 0.96)),
+    var(--panel);
+}
+
+.summaryList {
+  display: grid;
+  gap: 8px;
+  max-height: 18rem;
+  overflow: auto;
+  padding-right: 6px;
+}
+
+.summaryList code,
+.terminalLine code {
+  font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+.errorBanner {
+  margin: 0;
+  padding: 14px 18px;
+  border: 1px solid rgba(255, 107, 107, 0.35);
+  border-radius: 16px;
+  background: rgba(74, 14, 14, 0.5);
+  color: #ffc5c5;
+}
+
+.gridSection {
+  display: grid;
+  gap: 18px;
+}
+
+.familySection {
+  padding: 22px;
+}
+
+.familyHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.familyTitleGroup {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.familyAccent {
+  width: 10px;
+  align-self: stretch;
+  border-radius: 999px;
+}
+
+.familyTitle {
+  font-size: clamp(1.8rem, 4vw, 2.4rem);
+}
+
+.familyGrid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin-top: 18px;
+}
+
+.productCard {
+  display: flex;
+  min-height: 18rem;
+  flex-direction: column;
+  gap: 18px;
+  padding: 18px;
+  border: 1px solid rgba(143, 176, 199, 0.15);
+  border-radius: 24px;
+  background:
+    linear-gradient(180deg, rgba(11, 34, 53, 0.95), rgba(7, 17, 27, 0.96)),
+    var(--panel-strong);
+}
+
+.productCardHeader {
+  display: grid;
+  gap: 8px;
+}
+
+.productCode {
+  color: rgba(143, 176, 199, 0.78);
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+}
+
+.productLabel {
+  font-family: var(--font-heading), sans-serif;
+  font-size: 1.55rem;
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+
+.metricList {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+}
+
+.metricList div {
+  padding: 10px 12px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.metricList dd {
+  word-break: break-word;
+}
+
+.cardActions {
+  margin-top: auto;
+  display: flex;
+  gap: 10px;
+}
+
+.terminalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.terminalBody {
+  display: grid;
+  gap: 10px;
+  margin-top: 18px;
+  max-height: 22rem;
+  overflow: auto;
+  padding: 18px;
+  border-radius: 20px;
+  background: rgba(2, 11, 18, 0.88);
+  border: 1px solid rgba(143, 176, 199, 0.12);
+}
+
+.terminalLine {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  align-items: start;
+}
+
+.terminalTag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 6.4rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  background: rgba(78, 205, 196, 0.12);
+  color: var(--accent);
+  font-family: var(--font-heading), sans-serif;
+  letter-spacing: 0.16em;
+}
+
+@media (max-width: 1320px) {
+  .familyGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1100px) {
+  .hero,
+  .uploadStrip {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .familyGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .dashboard {
+    gap: 18px;
+  }
+
+  .heroCopy,
+  .statusPanel,
+  .dropzone,
+  .expectedProfitCard,
+  .familySection,
+  .terminalSection {
+    border-radius: 22px;
+    padding: 18px;
+  }
+
+  .familyGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .cardActions,
+  .dropzoneActions,
+  .terminalHeader {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .statusHeader {
+    flex-direction: column;
+    align-items: start;
+  }
+}

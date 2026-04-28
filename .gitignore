@@ -1,0 +1,15 @@
+.next
+node_modules
+.pnpm-store
+.pnpm-home
+.tmp
+.appdata
+.localappdata
+.render
+*.log
+.env
+.env.local
+.env.*.local
+dist
+coverage
+tsconfig.tsbuildinfo
