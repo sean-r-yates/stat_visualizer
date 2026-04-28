@@ -211,8 +211,8 @@ export function DashboardClient({ secret, initialSnapshot }: DashboardClientProp
           <p className={styles.kicker}>Round 5 Control Surface</p>
           <h1 className={styles.heroTitle}>Backtest every upload, rank every product, keep only the current winners.</h1>
           <p className={styles.heroText}>
-            Drag Python traders into the queue and the board will update as each run moves through uploaded,
-            queued, running, completed, or failed.
+            Drag Python traders in and the app will process them one at a time while the board updates through
+            uploaded, running, completed, or failed.
           </p>
         </div>
 
@@ -223,8 +223,8 @@ export function DashboardClient({ secret, initialSnapshot }: DashboardClientProp
           </div>
           <dl className={styles.statusGrid}>
             <div>
-              <dt>Queued</dt>
-              <dd>{snapshot.statusCounts.queued ?? 0}</dd>
+              <dt>Uploaded</dt>
+              <dd>{snapshot.statusCounts.uploaded ?? 0}</dd>
             </div>
             <div>
               <dt>Running</dt>
@@ -281,7 +281,7 @@ export function DashboardClient({ secret, initialSnapshot }: DashboardClientProp
           <div>
             <span className={styles.dropzoneLabel}>Upload traders</span>
             <p className={styles.dropzoneText}>
-              Drop one or many <code>.py</code> files here. Each file becomes its own queued backtest job.
+              Drop one or many <code>.py</code> files here. Each file becomes its own direct backtest run.
             </p>
           </div>
 
@@ -391,7 +391,7 @@ export function DashboardClient({ secret, initialSnapshot }: DashboardClientProp
           <div className={styles.terminalHeader}>
             <div>
               <p className={styles.terminalKicker}>Execution Log</p>
-              <h2 className={styles.terminalTitle}>Queue Terminal</h2>
+              <h2 className={styles.terminalTitle}>Backtest Terminal</h2>
             </div>
             <button
               className={styles.ghostButton}

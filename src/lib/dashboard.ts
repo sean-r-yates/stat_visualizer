@@ -138,7 +138,7 @@ export async function buildDashboardSnapshot(): Promise<DashboardSnapshot> {
     families,
     expectedProfit,
     summaryLines,
-    activeJobs: (statusCounts.queued ?? 0) + (statusCounts.running ?? 0),
+    activeJobs: (statusCounts.uploaded ?? 0) + (statusCounts.running ?? 0),
     statusCounts,
     terminalEvents: terminalRows.map((row) => ({
       id: row.id,

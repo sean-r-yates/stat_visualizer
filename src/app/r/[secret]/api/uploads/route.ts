@@ -1,10 +1,9 @@
 import { NextResponse } from "next/server";
 
-import { getBacktestQueue } from "@/lib/queue";
+import { scheduleUploadProcessing } from "@/lib/backtest-processor";
 import { ensureSecretRoute } from "@/lib/secret-route";
 import { appendTerminalEvent } from "@/lib/terminal";
-import { createQueuedUploads } from "@/lib/uploads";
-import { finalizeFailedUpload } from "@/lib/winners";
+import { createUploadedUploads } from "@/lib/uploads";
 
 export const runtime = "nodejs";
 
@@ -41,8 +40,7 @@ export async function POST(request: Request, { params }: RouteContext) {
     })),
   );
 
-  const uploads = await createQueuedUploads(sourceFiles);
-  const queue = getBacktestQueue();
+  const uploads = await createUploadedUploads(sourceFiles);
 
   for (const upload of uploads) {
     await appendTerminalEvent({
@@ -51,41 +49,9 @@ export async function POST(request: Request, { params }: RouteContext) {
       uploadId: upload.id,
       storedName: upload.storedName,
     });
-
-    await appendTerminalEvent({
-      eventType: "queued",
-      message: `Queued ${upload.storedName}`,
-      uploadId: upload.id,
-      storedName: upload.storedName,
-    });
-
-    try {
-      await queue.add(
-        upload.id,
-        {
-          uploadId: upload.id,
-        },
-        {
-          jobId: upload.id,
-        },
-      );
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Queue submission failed.";
-
-      await finalizeFailedUpload({
-        uploadId: upload.id,
-        rawLog: message,
-        errorLog: message,
-      });
-
-      await appendTerminalEvent({
-        eventType: "failed",
-        message: `Failed to queue ${upload.storedName}: ${message}`,
-        uploadId: upload.id,
-        storedName: upload.storedName,
-      });
-    }
   }
+
+  scheduleUploadProcessing(uploads.map((upload) => upload.id));
 
   return NextResponse.json({ uploaded: uploads.length });
 }

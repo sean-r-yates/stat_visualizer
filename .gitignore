@@ -5,7 +5,7 @@ node_modules
 .tmp
 .appdata
 .localappdata
-.render
+.do/app.local.yaml
 *.log
 .env
 .env.local

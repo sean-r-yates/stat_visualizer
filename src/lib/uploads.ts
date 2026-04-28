@@ -10,7 +10,7 @@ export type UploadRecord = {
   sourceCode: string;
 };
 
-export async function createQueuedUploads(
+export async function createUploadedUploads(
   files: Array<{ name: string; sourceCode: string }>,
 ): Promise<UploadRecord[]> {
   await ensureSchema();
@@ -37,7 +37,7 @@ export async function createQueuedUploads(
           ${upload.originalName},
           ${upload.storedName},
           ${upload.sourceCode},
-          'queued'
+          'uploaded'
         )
       `;
     }
@@ -53,7 +53,7 @@ export async function markUploadRunning(uploadId: string): Promise<{ storedName:
   const [upload] = await sql<{ stored_name: string; source_code: string }[]>`
     update uploads
     set status = 'running', started_at = coalesce(started_at, now())
-    where id = ${uploadId} and status = 'queued'
+    where id = ${uploadId} and status = 'uploaded'
     returning stored_name, source_code
   `;
 

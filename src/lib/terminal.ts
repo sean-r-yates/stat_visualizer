@@ -2,7 +2,6 @@ import { ensureSchema, getSql } from "@/lib/db";
 
 export type TerminalEventType =
   | "uploaded"
-  | "queued"
   | "running"
   | "completed"
   | "failed";

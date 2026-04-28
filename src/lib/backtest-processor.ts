@@ -1,14 +1,10 @@
+import { spawn } from "node:child_process";
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { spawn } from "node:child_process";
-
-import { Worker } from "bullmq";
 
 import { parseBacktesterOutput } from "@/lib/backtester-parser";
-import { ensureSchema } from "@/lib/db";
 import { getServerEnv } from "@/lib/env";
-import { BACKTEST_QUEUE, getRedisConnection, type BacktestJobData } from "@/lib/queue";
 import { appendTerminalEvent } from "@/lib/terminal";
 import { markUploadRunning } from "@/lib/uploads";
 import { finalizeFailedUpload, finalizeSuccessfulUpload } from "@/lib/winners";
@@ -22,6 +18,8 @@ class BacktestCommandError extends Error {
     super(message);
   }
 }
+
+let processingChain: Promise<void> = Promise.resolve();
 
 function buildBacktestCommand(filePath: string): string {
   const env = getServerEnv();
@@ -133,39 +131,20 @@ async function processUpload(uploadId: string): Promise<void> {
       uploadId,
       storedName: upload.storedName,
     });
-
-    throw error;
   } finally {
     await rm(tempDirectory, { force: true, recursive: true });
   }
 }
 
-async function main() {
-  await ensureSchema();
-
-  const worker = new Worker<BacktestJobData>(
-    BACKTEST_QUEUE,
-    async (job) => {
-      await processUpload(job.data.uploadId);
-    },
-    {
-      concurrency: 1,
-      connection: getRedisConnection(),
-    },
-  );
-
-  worker.on("completed", (job) => {
-    console.log(`[worker] completed ${job.id}`);
-  });
-
-  worker.on("failed", (job, error) => {
-    console.error(`[worker] failed ${job?.id ?? "unknown"}: ${error.message}`);
-  });
-
-  console.log("[worker] listening for Round 5 backtests");
+export function scheduleUploadProcessing(uploadIds: string[]): void {
+  for (const uploadId of uploadIds) {
+    processingChain = processingChain
+      .catch(() => undefined)
+      .then(async () => {
+        await processUpload(uploadId);
+      })
+      .catch((error) => {
+        console.error(`[backtest-processor] failed ${uploadId}`, error);
+      });
+  }
 }
-
-void main().catch((error) => {
-  console.error("[worker] startup failed", error);
-  process.exit(1);
-});

@@ -1,0 +1,46 @@
+name: stat-visualizer
+region: lon1
+
+envs:
+  - key: APP_SECRET_SLUG
+    scope: RUN_TIME
+    type: SECRET
+    value: round5-lon1-h7k3m9q2v8x4p6c1z5r
+
+databases:
+  - name: stat-db
+    engine: PG
+    production: true
+    cluster_name: db-postgresql-lon1-87688
+    db_name: stat_visualizer
+    db_user: stat_visualizer
+
+services:
+  - name: stat-web
+    github:
+      repo: sean-r-yates/stat_visualizer
+      branch: main
+      deploy_on_push: true
+    source_dir: /
+    dockerfile_path: Dockerfile
+    http_port: 3000
+    instance_count: 1
+    instance_size_slug: apps-s-1vcpu-1gb
+    health_check:
+      initial_delay_seconds: 10
+      period_seconds: 15
+      timeout_seconds: 5
+      success_threshold: 1
+      failure_threshold: 3
+      http_path: /healthz
+      port: 3000
+    envs:
+      - key: DATABASE_URL
+        scope: RUN_TIME
+        value: ${stat-db.DATABASE_URL}
+      - key: BACKTEST_COMMAND
+        scope: RUN_TIME
+        value: rust_backtester --trader {file} --dataset round5 --products full --artifact-mode none
+      - key: BACKTEST_WORKDIR
+        scope: RUN_TIME
+        value: /app
