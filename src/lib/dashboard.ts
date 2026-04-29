@@ -44,7 +44,7 @@ export async function buildDashboardSnapshot(): Promise<DashboardSnapshot> {
   await ensureSchema();
   const sql = getSql();
 
-  const [winnerRows, statusRows, terminalRows] = await Promise.all([
+  const [winnerRows, statusRows, completedRows, terminalRows] = await Promise.all([
     sql<{
       product_key: ProductKey;
       day_2_pnl: number | null;
@@ -87,6 +87,19 @@ export async function buildDashboardSnapshot(): Promise<DashboardSnapshot> {
       from uploads
       group by status
     `,
+    sql<{ count: number }[]>`
+      with completed_upload_ids as (
+        select distinct upload_id
+        from run_results
+        union
+        select distinct upload_id
+        from terminal_events
+        where event_type = 'completed'
+          and upload_id is not null
+      )
+      select count(*)::int as count
+      from completed_upload_ids
+    `,
     sql<{
       id: number;
       event_type: string;
@@ -101,7 +114,10 @@ export async function buildDashboardSnapshot(): Promise<DashboardSnapshot> {
   ]);
 
   const winnerByProduct = new Map(winnerRows.map((row) => [row.product_key, row]));
-  const statusCounts = Object.fromEntries(statusRows.map((row) => [row.status, row.count]));
+  const statusCounts: Record<string, number> = {
+    ...Object.fromEntries(statusRows.map((row) => [row.status, row.count])),
+    completed: completedRows[0]?.count ?? 0,
+  };
 
   const families = FAMILIES.map((family) => {
     const products = family.products
