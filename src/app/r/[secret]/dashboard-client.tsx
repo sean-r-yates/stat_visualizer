@@ -48,6 +48,25 @@ function eventLabel(eventType: string): string {
   return eventType.toUpperCase();
 }
 
+const terminalTimeFormatter = new Intl.DateTimeFormat(undefined, {
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+});
+
+const terminalDateTimeFormatter = new Intl.DateTimeFormat(undefined, {
+  dateStyle: "medium",
+  timeStyle: "medium",
+});
+
+function terminalTimeText(createdAt: string): string {
+  return terminalTimeFormatter.format(new Date(createdAt));
+}
+
+function terminalDateTimeText(createdAt: string): string {
+  return terminalDateTimeFormatter.format(new Date(createdAt));
+}
+
 function productPnlBounds(dayPnls: Array<number | null>): [number, number] {
   const values = dayPnls.filter((value): value is number => value !== null);
 
@@ -547,6 +566,9 @@ export function DashboardClient({ secret, initialSnapshot }: DashboardClientProp
           {snapshot.terminalEvents.length > 0 ? (
             snapshot.terminalEvents.map((event) => (
               <div key={event.id} className={styles.terminalLine}>
+                <time className={styles.terminalTime} dateTime={event.createdAt} title={terminalDateTimeText(event.createdAt)}>
+                  {terminalTimeText(event.createdAt)}
+                </time>
                 <span className={styles.terminalTag}>{eventLabel(event.eventType)}</span>
                 <code>{event.message}</code>
               </div>

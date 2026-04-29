@@ -403,7 +403,7 @@
 
 .terminalLine {
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: 5.6rem auto 1fr;
   gap: 12px;
   align-items: start;
 }
@@ -424,6 +424,14 @@
   color: var(--accent);
   font-family: var(--font-heading), sans-serif;
   letter-spacing: 0.16em;
+}
+
+.terminalTime {
+  color: var(--muted);
+  font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+  font-size: 0.82rem;
+  line-height: 1.9;
+  white-space: nowrap;
 }
 
 @media (max-width: 1320px) {
@@ -497,6 +505,15 @@
 
   .terminalActions {
     justify-content: stretch;
+  }
+
+  .terminalLine {
+    grid-template-columns: 5.4rem 1fr;
+    gap: 8px 10px;
+  }
+
+  .terminalLine code {
+    grid-column: 1 / -1;
   }
 
   .bannerHeaderGroup {
