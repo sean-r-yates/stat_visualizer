@@ -30,8 +30,8 @@ const EMPTY_SUMMARY: PredictionSummary = {
   max: 0,
 };
 
-function buildDefaultSelection(snapshot: FrankenstienerSnapshot): Selection {
-  return snapshot.presets.find((preset) => preset.key === "the-winners")?.selection ?? {};
+function buildDefaultSelection(): Selection {
+  return {};
 }
 
 function sumSummaries(candidates: FrankenstienerCandidate[]): PredictionSummary {
@@ -267,7 +267,7 @@ function FrankenstienerPlot({
 
 export function FrankenstienerClient({ secret, initialSnapshot }: FrankenstienerClientProps) {
   const [snapshot, setSnapshot] = useState(initialSnapshot);
-  const [selection, setSelection] = useState<Selection>(() => buildDefaultSelection(initialSnapshot));
+  const [selection, setSelection] = useState<Selection>(() => buildDefaultSelection());
   const [error, setError] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
