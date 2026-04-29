@@ -5,18 +5,50 @@ import type { ProductKey } from "@/lib/products";
 type CurrentWinnerRow = {
   product_key: ProductKey;
   upload_id: string | null;
+  day_2_pnl: number | null;
+  day_3_pnl: number | null;
+  day_4_pnl: number | null;
+  mean_pnl: number | null;
   total_pnl: number | null;
   pnl_range: number | null;
   upload_created_at: Date | null;
 };
+
+function hasNoNegativeDays(dailyPnls: readonly number[]): boolean {
+  return dailyPnls.every((pnl) => pnl >= 0);
+}
 
 function isCandidateBetter(
   candidate: ParsedProductMetrics,
   current: CurrentWinnerRow | undefined,
   candidateCreatedAt: Date,
 ): boolean {
-  if (!current || current.upload_id === null || current.total_pnl === null || current.pnl_range === null) {
+  if (
+    !current ||
+    current.upload_id === null ||
+    current.day_2_pnl === null ||
+    current.day_3_pnl === null ||
+    current.day_4_pnl === null ||
+    current.mean_pnl === null ||
+    current.total_pnl === null ||
+    current.pnl_range === null
+  ) {
     return true;
+  }
+
+  const candidateHasNoNegativeDays = hasNoNegativeDays(candidate.dailyPnls);
+  const currentHasNoNegativeDays = hasNoNegativeDays([
+    current.day_2_pnl,
+    current.day_3_pnl,
+    current.day_4_pnl,
+  ]);
+
+  if (candidateHasNoNegativeDays !== currentHasNoNegativeDays) {
+    return candidateHasNoNegativeDays;
+  }
+
+  if (candidate.meanPnl !== current.mean_pnl) {
+    return candidate.meanPnl > current.mean_pnl;
   }
 
   if (candidate.totalPnl !== current.total_pnl) {
@@ -93,6 +125,10 @@ export async function finalizeSuccessfulUpload(input: {
       select
         pw.product_key,
         pw.upload_id,
+        rr.day_2_pnl,
+        rr.day_3_pnl,
+        rr.day_4_pnl,
+        pw.mean_pnl,
         pw.total_pnl,
         pw.pnl_range,
         (
@@ -101,6 +137,9 @@ export async function finalizeSuccessfulUpload(input: {
           where u.id = pw.upload_id
         ) as upload_created_at
       from product_winners pw
+      left join run_results rr
+        on rr.upload_id = pw.upload_id
+       and rr.product_key = pw.product_key
       for update
     `;
 

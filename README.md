@@ -24,9 +24,11 @@ The app is built for a small trusted group using a shared secret URL instead of 
 - There are 10 product families and 5 products per family
 - Each family row is re-sorted by highest current winning `TOTAL PnL`
 - Winner tie-breaks are:
-  1. higher `TOTAL PnL`
-  2. smaller `range`
-  3. newer upload
+  1. any strategy with no day where `PnL < 0` beats any strategy with at least one negative day
+  2. higher `mean PnL` across `D+2`, `D+3`, and `D+4`
+  3. higher `TOTAL PnL`
+  4. smaller `range`
+  5. newer upload
 - If a successful upload does not win any product, its source code is deleted automatically
 - If a winning upload is deleted, affected product cells become `No attempt`
 - Winners are not recomputed from old non-winning runs after deletion
