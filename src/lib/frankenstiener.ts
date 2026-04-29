@@ -82,6 +82,10 @@ function hasNoNegativeDays(candidate: FrankenstienerCandidate): boolean {
   return candidate.day2Pnl >= 0 && candidate.day3Pnl >= 0 && candidate.day4Pnl >= 0;
 }
 
+function hasAnyNonZeroDay(candidate: FrankenstienerCandidate): boolean {
+  return candidate.day2Pnl !== 0 || candidate.day3Pnl !== 0 || candidate.day4Pnl !== 0;
+}
+
 function worstDayPnl(candidate: FrankenstienerCandidate): number {
   return Math.min(candidate.day2Pnl, candidate.day3Pnl, candidate.day4Pnl);
 }
@@ -260,7 +264,7 @@ export async function buildFrankenstienerSnapshot(): Promise<FrankenstienerSnaps
       selector: (_product, candidates) =>
         pickFirst(
           candidates
-            .filter(hasNoNegativeDays)
+            .filter((candidate) => hasNoNegativeDays(candidate) && hasAnyNonZeroDay(candidate))
             .sort(
               (left, right) =>
                 compareNumberAsc(left.pnlRange, right.pnlRange) ||
