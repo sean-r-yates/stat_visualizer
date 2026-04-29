@@ -144,7 +144,7 @@ export async function finalizeSuccessfulUpload(input: {
       left join run_results rr
         on rr.upload_id = pw.upload_id
        and rr.product_key = pw.product_key
-      for update
+      for update of pw
     `;
 
     const currentByProduct = new Map(currentRows.map((row) => [row.product_key, row]));
