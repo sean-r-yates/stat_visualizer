@@ -18,7 +18,7 @@ RUN corepack enable
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y --profile minimal
 ENV PATH="/root/.cargo/bin:$PATH"
 
-RUN cargo install rust_backtester --version 0.4.0
+RUN cargo install rust_backtester
 
 WORKDIR /app
 

@@ -58,7 +58,7 @@ The app is built for a small trusted group using a shared secret URL instead of 
 - `TypeScript`
 - `postgres` npm client
 - `zod`
-- `rust_backtester 0.4.0`
+- `rust_backtester` via `cargo install`
 - `DigitalOcean App Platform`
 - `DigitalOcean Managed PostgreSQL`
 
@@ -337,7 +337,7 @@ The production image:
 
 - starts from `node:22-bookworm-slim`
 - installs build tools, Python, Python development headers, Rust, and Cargo
-- installs `rust_backtester 0.4.0`
+- installs the latest `rust_backtester` available from `cargo install`
 - installs Node dependencies with `pnpm`
 - builds the Next.js app
 - starts the web server on port `3000`
