@@ -289,16 +289,16 @@
 }
 
 .productCardGreen {
-  border-color: rgba(73, 198, 123, 0.34);
+  border-color: rgba(245, 148, 56, 0.42);
   background:
-    linear-gradient(180deg, rgba(16, 53, 33, 0.88), rgba(5, 21, 12, 0.96)),
+    linear-gradient(180deg, rgba(96, 46, 10, 0.9), rgba(38, 18, 5, 0.97)),
     var(--panel-strong);
 }
 
 .productCardOrange {
-  border-color: rgba(245, 148, 56, 0.42);
+  border-color: rgba(73, 198, 123, 0.34);
   background:
-    linear-gradient(180deg, rgba(96, 46, 10, 0.9), rgba(38, 18, 5, 0.97)),
+    linear-gradient(180deg, rgba(16, 53, 33, 0.88), rgba(5, 21, 12, 0.96)),
     var(--panel-strong);
 }
 
@@ -338,11 +338,11 @@
 }
 
 .productCardGreen .metricList div {
-  background: rgba(100, 202, 129, 0.08);
+  background: rgba(245, 148, 56, 0.1);
 }
 
 .productCardOrange .metricList div {
-  background: rgba(245, 148, 56, 0.1);
+  background: rgba(100, 202, 129, 0.08);
 }
 
 .productCardNegative .metricList div {
