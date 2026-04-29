@@ -306,7 +306,7 @@ export async function buildFrankenstienerSnapshot(): Promise<FrankenstienerSnaps
             ),
         ),
     }),
-  ];
+  ].sort((left, right) => compareNumberAsc(left.summary.mean, right.summary.mean));
 
   const families: FrankenstienerFamily[] = FAMILIES.map((family) => ({
     key: family.key,
