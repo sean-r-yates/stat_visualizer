@@ -28,11 +28,16 @@ function buildBacktestCommand(filePath: string): string {
     throw new Error("BACKTEST_COMMAND is not configured.");
   }
 
-  if (!env.BACKTEST_COMMAND.includes("{file}")) {
-    throw new Error("BACKTEST_COMMAND must include a {file} placeholder.");
+  const hasLegacyPlaceholder = env.BACKTEST_COMMAND.includes("{file}");
+  const hasSafePlaceholder = env.BACKTEST_COMMAND.includes("__FILE__");
+
+  if (!hasLegacyPlaceholder && !hasSafePlaceholder) {
+    throw new Error("BACKTEST_COMMAND must include either a {file} or __FILE__ placeholder.");
   }
 
-  return env.BACKTEST_COMMAND.replaceAll("{file}", `"${filePath}"`);
+  return env.BACKTEST_COMMAND
+    .replaceAll("{file}", `"${filePath}"`)
+    .replaceAll("__FILE__", `"${filePath}"`);
 }
 
 async function runBacktester(filePath: string): Promise<{ stdout: string; stderr: string }> {
