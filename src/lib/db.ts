@@ -68,12 +68,17 @@ export async function ensureSchema(): Promise<void> {
       await sql`
         create table if not exists product_winners (
           product_key text primary key,
-          upload_id text references uploads (id) on delete set null,
+          upload_id text,
           total_pnl double precision,
           mean_pnl double precision,
           pnl_range double precision,
           updated_at timestamptz not null default now()
         )
+      `;
+
+      await sql`
+        alter table product_winners
+        drop constraint if exists product_winners_upload_id_fkey
       `;
 
       await sql`

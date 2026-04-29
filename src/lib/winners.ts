@@ -14,6 +14,10 @@ type CurrentWinnerRow = {
   upload_created_at: Date | null;
 };
 
+export type RebuildProductWinnersResult = {
+  refreshedProducts: number;
+};
+
 function hasNoNegativeDays(dailyPnls: readonly number[]): boolean {
   return dailyPnls.every((pnl) => pnl >= 0);
 }
@@ -201,6 +205,60 @@ export async function finalizeFailedUpload(input: {
       completed_at = now()
     where id = ${input.uploadId}
   `;
+}
+
+export async function rebuildProductWinnersFromRunResults(): Promise<RebuildProductWinnersResult> {
+  await ensureSchema();
+  const sql = getSql();
+
+  return sql.begin(async (transaction) => {
+    await transaction`delete from product_winners`;
+
+    const rebuiltRows = await transaction<{ product_key: ProductKey }[]>`
+      with ranked_results as (
+        select
+          rr.upload_id,
+          rr.product_key,
+          rr.total_pnl,
+          rr.mean_pnl,
+          rr.pnl_range,
+          row_number() over (
+            partition by rr.product_key
+            order by
+              case
+                when rr.day_2_pnl >= 0
+                 and rr.day_3_pnl >= 0
+                 and rr.day_4_pnl >= 0
+                then 1
+                else 0
+              end desc,
+              rr.mean_pnl desc,
+              rr.total_pnl desc,
+              rr.pnl_range asc,
+              coalesce(u.created_at, rr.created_at) desc,
+              rr.upload_id desc
+          ) as winner_rank
+        from run_results rr
+        left join uploads u
+          on u.id = rr.upload_id
+      )
+      insert into product_winners (product_key, upload_id, total_pnl, mean_pnl, pnl_range, updated_at)
+      select
+        product_key,
+        upload_id,
+        total_pnl,
+        mean_pnl,
+        pnl_range,
+        now()
+      from ranked_results
+      where winner_rank = 1
+      returning product_key
+    `;
+
+    return {
+      refreshedProducts: rebuiltRows.length,
+    };
+  });
 }
 
 export async function deleteWinningUpload(uploadId: string): Promise<number> {

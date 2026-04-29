@@ -18,6 +18,7 @@ type UploadState = {
   isClearing: boolean;
   isExporting: boolean;
   isTruncating: boolean;
+  isMegaRefreshing: boolean;
   error: string | null;
 };
 
@@ -86,6 +87,7 @@ export function DashboardClient({ secret, initialSnapshot }: DashboardClientProp
     isClearing: false,
     isExporting: false,
     isTruncating: false,
+    isMegaRefreshing: false,
     error: null,
   });
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -331,6 +333,37 @@ export function DashboardClient({ secret, initialSnapshot }: DashboardClientProp
     }
   }
 
+  async function handleMegaRefresh() {
+    setUploadState((current) => ({
+      ...current,
+      isMegaRefreshing: true,
+      error: null,
+    }));
+
+    try {
+      const response = await fetch(`${apiBase}/winners/refresh`, {
+        method: "POST",
+      });
+
+      if (!response.ok) {
+        const body = (await response.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(body?.error ?? "Could not mega refresh winners.");
+      }
+
+      await refreshAfterMutation();
+    } catch (error) {
+      setUploadState((current) => ({
+        ...current,
+        error: error instanceof Error ? error.message : "Could not mega refresh winners.",
+      }));
+    } finally {
+      setUploadState((current) => ({
+        ...current,
+        isMegaRefreshing: false,
+      }));
+    }
+  }
+
   return (
     <div className={styles.dashboard}>
       <section className={styles.statusBanner}>
@@ -491,6 +524,14 @@ export function DashboardClient({ secret, initialSnapshot }: DashboardClientProp
               type="button"
             >
               {uploadState.isExporting ? "Packing..." : "ZIP BOMB"}
+            </button>
+            <button
+              className={styles.megaButton}
+              disabled={uploadState.isMegaRefreshing}
+              onClick={() => void handleMegaRefresh()}
+              type="button"
+            >
+              {uploadState.isMegaRefreshing ? "Refreshing..." : "mega refresh"}
             </button>
             <button
               className={styles.ghostButton}

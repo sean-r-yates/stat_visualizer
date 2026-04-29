@@ -4,7 +4,8 @@ export type TerminalEventType =
   | "uploaded"
   | "running"
   | "completed"
-  | "failed";
+  | "failed"
+  | "refreshed";
 
 export async function appendTerminalEvent(input: {
   eventType: TerminalEventType;

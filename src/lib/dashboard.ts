@@ -117,7 +117,7 @@ export async function buildDashboardSnapshot(): Promise<DashboardSnapshot> {
           totalPnl: winner?.total_pnl ?? null,
           meanPnl: winner?.mean_pnl ?? null,
           pnlRange: winner?.pnl_range ?? null,
-          fileName: winner?.stored_name ?? null,
+          fileName: winner?.stored_name ?? (winner?.upload_id ? `upload ${winner.upload_id}` : null),
           uploadId: winner?.upload_id ?? null,
           winCount: winner?.win_count ?? 0,
         };
