@@ -42,6 +42,30 @@ export async function ensureSchema(): Promise<void> {
       `;
 
       await sql`
+        create table if not exists run_results (
+          upload_id text not null,
+          product_key text not null,
+          day_2_pnl double precision not null,
+          day_3_pnl double precision not null,
+          day_4_pnl double precision not null,
+          total_pnl double precision not null,
+          mean_pnl double precision not null,
+          pnl_range double precision not null,
+          created_at timestamptz not null default now(),
+          primary key (upload_id, product_key)
+        )
+      `;
+
+      await sql`
+        create index if not exists run_results_product_rank_idx
+        on run_results (product_key, total_pnl desc, pnl_range asc)
+      `;
+
+      await sql`
+        create index if not exists run_results_upload_idx on run_results (upload_id)
+      `;
+
+      await sql`
         create table if not exists product_winners (
           product_key text primary key,
           upload_id text references uploads (id) on delete set null,

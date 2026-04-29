@@ -54,6 +54,41 @@ export async function finalizeSuccessfulUpload(input: {
       return;
     }
 
+    for (const metric of input.metrics) {
+      const [day2Pnl, day3Pnl, day4Pnl] = metric.dailyPnls;
+
+      await transaction`
+        insert into run_results (
+          upload_id,
+          product_key,
+          day_2_pnl,
+          day_3_pnl,
+          day_4_pnl,
+          total_pnl,
+          mean_pnl,
+          pnl_range
+        )
+        values (
+          ${input.uploadId},
+          ${metric.product},
+          ${day2Pnl},
+          ${day3Pnl},
+          ${day4Pnl},
+          ${metric.totalPnl},
+          ${metric.meanPnl},
+          ${metric.pnlRange}
+        )
+        on conflict (upload_id, product_key) do update
+        set
+          day_2_pnl = excluded.day_2_pnl,
+          day_3_pnl = excluded.day_3_pnl,
+          day_4_pnl = excluded.day_4_pnl,
+          total_pnl = excluded.total_pnl,
+          mean_pnl = excluded.mean_pnl,
+          pnl_range = excluded.pnl_range
+      `;
+    }
+
     const currentRows = await transaction<CurrentWinnerRow[]>`
       select
         pw.product_key,

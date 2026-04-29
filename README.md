@@ -146,6 +146,22 @@ Statuses currently used:
 - `completed`
 - `failed`
 
+### `run_results`
+
+Stores the persistent backtest metrics for every successful upload/product pair.
+
+Columns:
+
+- `upload_id`
+- `product_key`
+- `day_2_pnl`
+- `day_3_pnl`
+- `day_4_pnl`
+- `total_pnl`
+- `mean_pnl`
+- `pnl_range`
+- `created_at`
+
 ### `product_winners`
 
 Stores the current winning upload for each product.
