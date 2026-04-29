@@ -47,6 +47,9 @@ export async function buildDashboardSnapshot(): Promise<DashboardSnapshot> {
   const [winnerRows, statusRows, terminalRows] = await Promise.all([
     sql<{
       product_key: ProductKey;
+      day_2_pnl: number | null;
+      day_3_pnl: number | null;
+      day_4_pnl: number | null;
       total_pnl: number | null;
       mean_pnl: number | null;
       pnl_range: number | null;
@@ -56,6 +59,9 @@ export async function buildDashboardSnapshot(): Promise<DashboardSnapshot> {
     }[]>`
       select
         pw.product_key,
+        rr.day_2_pnl,
+        rr.day_3_pnl,
+        rr.day_4_pnl,
         pw.total_pnl,
         pw.mean_pnl,
         pw.pnl_range,
@@ -65,6 +71,9 @@ export async function buildDashboardSnapshot(): Promise<DashboardSnapshot> {
       from product_winners pw
       left join uploads u
         on u.id = pw.upload_id
+      left join run_results rr
+        on rr.upload_id = pw.upload_id
+       and rr.product_key = pw.product_key
       left join (
         select upload_id, count(*)::int as win_count
         from product_winners
@@ -102,6 +111,9 @@ export async function buildDashboardSnapshot(): Promise<DashboardSnapshot> {
         return {
           product,
           label: productLabel(product),
+          day2Pnl: winner?.day_2_pnl ?? null,
+          day3Pnl: winner?.day_3_pnl ?? null,
+          day4Pnl: winner?.day_4_pnl ?? null,
           totalPnl: winner?.total_pnl ?? null,
           meanPnl: winner?.mean_pnl ?? null,
           pnlRange: winner?.pnl_range ?? null,

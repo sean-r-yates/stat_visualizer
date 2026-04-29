@@ -260,6 +260,13 @@
     var(--panel-strong);
 }
 
+.productCardGold {
+  border-color: rgba(224, 190, 84, 0.42);
+  background:
+    linear-gradient(180deg, rgba(79, 58, 14, 0.9), rgba(30, 20, 6, 0.97)),
+    var(--panel-strong);
+}
+
 .productCardNegative {
   border-color: rgba(223, 92, 92, 0.34);
   background:
@@ -297,6 +304,10 @@
 
 .productCardPositive .metricList div {
   background: rgba(100, 202, 129, 0.08);
+}
+
+.productCardGold .metricList div {
+  background: rgba(224, 190, 84, 0.1);
 }
 
 .productCardNegative .metricList div {

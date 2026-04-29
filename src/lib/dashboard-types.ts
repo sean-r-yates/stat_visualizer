@@ -3,6 +3,9 @@ import type { ProductKey } from "@/lib/products";
 export type ProductCellSnapshot = {
   product: ProductKey;
   label: string;
+  day2Pnl: number | null;
+  day3Pnl: number | null;
+  day4Pnl: number | null;
   totalPnl: number | null;
   meanPnl: number | null;
   pnlRange: number | null;

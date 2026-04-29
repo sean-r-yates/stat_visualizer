@@ -27,12 +27,26 @@ function eventLabel(eventType: string): string {
   return eventType.toUpperCase();
 }
 
-function productTone(meanPnl: number | null, pnlRange: number | null): "positive" | "negative" | "neutral" {
-  if (meanPnl === null || pnlRange === null) {
+function productTone(
+  day2Pnl: number | null,
+  day3Pnl: number | null,
+  day4Pnl: number | null,
+  meanPnl: number | null,
+  pnlRange: number | null,
+): "gold" | "positive" | "negative" | "neutral" {
+  if (day2Pnl === null || day3Pnl === null || day4Pnl === null || meanPnl === null || pnlRange === null) {
     return "neutral";
   }
 
-  return pnlRange < meanPnl ? "positive" : "negative";
+  if (day2Pnl < 0 || day3Pnl < 0 || day4Pnl < 0) {
+    return "negative";
+  }
+
+  if (day2Pnl > 0 && day3Pnl > 0 && day4Pnl > 0) {
+    return pnlRange < meanPnl ? "gold" : "positive";
+  }
+
+  return "neutral";
 }
 
 export function DashboardClient({ secret, initialSnapshot }: DashboardClientProps) {
@@ -272,13 +286,21 @@ export function DashboardClient({ secret, initialSnapshot }: DashboardClientProp
 
             <div className={styles.familyGrid}>
               {family.products.map((product) => {
-                const tone = productTone(product.meanPnl, product.pnlRange);
+                const tone = productTone(
+                  product.day2Pnl,
+                  product.day3Pnl,
+                  product.day4Pnl,
+                  product.meanPnl,
+                  product.pnlRange,
+                );
 
                 return (
                   <section
                     key={product.product}
                     className={`${styles.productCard} ${
-                      tone === "positive"
+                      tone === "gold"
+                        ? styles.productCardGold
+                        : tone === "positive"
                         ? styles.productCardPositive
                         : tone === "negative"
                           ? styles.productCardNegative
