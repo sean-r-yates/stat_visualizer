@@ -277,7 +277,7 @@
     var(--panel-strong);
 }
 
-.productCardPositive {
+.productCardGreen {
   border-color: rgba(73, 198, 123, 0.34);
   background:
     linear-gradient(180deg, rgba(16, 53, 33, 0.88), rgba(5, 21, 12, 0.96)),
@@ -326,7 +326,7 @@
   background: rgba(255, 255, 255, 0.035);
 }
 
-.productCardPositive .metricList div {
+.productCardGreen .metricList div {
   background: rgba(100, 202, 129, 0.08);
 }
 
