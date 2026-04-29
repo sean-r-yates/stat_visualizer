@@ -1,8 +1,9 @@
 "use client";
 
+import type { CSSProperties } from "react";
 import { startTransition, useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
 
-import type { DashboardSnapshot, ProductCellSnapshot } from "@/lib/dashboard-types";
+import type { DashboardSnapshot } from "@/lib/dashboard-types";
 import { formatMetric } from "@/lib/dashboard-types";
 
 import styles from "./dashboard.module.css";
@@ -38,7 +39,6 @@ export function DashboardClient({ secret, initialSnapshot }: DashboardClientProp
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const apiBase = `/r/${secret}/api`;
-  const downloadBase = `/r/${secret}/api/uploads`;
 
   const loadSnapshot = useEffectEvent(async () => {
     const response = await fetch(`${apiBase}/snapshot`, {
@@ -141,39 +141,6 @@ export function DashboardClient({ secret, initialSnapshot }: DashboardClientProp
     }
   }
 
-  async function handleDelete(product: ProductCellSnapshot) {
-    if (!product.uploadId || !product.fileName) {
-      return;
-    }
-
-    const confirmationMessage =
-      product.winCount > 1
-        ? `${product.fileName} currently wins ${product.winCount} products. Delete it anyway?`
-        : `Delete ${product.fileName}?`;
-
-    if (!window.confirm(confirmationMessage)) {
-      return;
-    }
-
-    try {
-      const response = await fetch(`${apiBase}/uploads/${product.uploadId}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) {
-        const body = (await response.json().catch(() => null)) as { error?: string } | null;
-        throw new Error(body?.error ?? "Delete failed.");
-      }
-
-      await refreshAfterMutation();
-    } catch (error) {
-      setUploadState((current) => ({
-        ...current,
-        error: error instanceof Error ? error.message : "Delete failed.",
-      }));
-    }
-  }
-
   async function handleClearTerminal() {
     setUploadState((current) => ({
       ...current,
@@ -206,53 +173,59 @@ export function DashboardClient({ secret, initialSnapshot }: DashboardClientProp
 
   return (
     <div className={styles.dashboard}>
-      <section className={styles.hero}>
-        <div className={styles.heroCopy}>
-          <p className={styles.kicker}>Round 5 Control Surface</p>
-          <h1 className={styles.heroTitle}>Backtest every upload, rank every product, keep only the current winners.</h1>
-          <p className={styles.heroText}>
-            Drag Python traders in and the app will process them one at a time while the board updates through
-            uploaded, running, completed, or failed.
+      <section className={styles.statusBanner}>
+        <div className={styles.bannerHeader}>
+          <div className={styles.bannerHeaderGroup}>
+            <div className={styles.bannerStatus}>
+              <span className={styles.statusLabel}>Algorithm Status</span>
+              <strong className={styles.statusValue}>{snapshot.activeJobs > 0 ? "Busy" : "Idle"}</strong>
+            </div>
+            <button
+              className={styles.primaryButton}
+              disabled={uploadState.isUploading}
+              onClick={() => fileInputRef.current?.click()}
+              type="button"
+            >
+              {uploadState.isUploading ? "Uploading..." : "Upload .py Files"}
+            </button>
+          </div>
+          <p className={styles.bannerText}>
+            The queue updates live as uploads move through uploaded, running, completed, or failed.
           </p>
         </div>
-
-        <div className={styles.statusPanel}>
-          <div className={styles.statusHeader}>
-            <span className={styles.statusLabel}>Algorithm Status</span>
-            <strong className={styles.statusValue}>{snapshot.activeJobs > 0 ? "Busy" : "Idle"}</strong>
+        <dl className={styles.bannerMetrics}>
+          <div>
+            <dt>Uploaded</dt>
+            <dd>{snapshot.statusCounts.uploaded ?? 0}</dd>
           </div>
-          <dl className={styles.statusGrid}>
-            <div>
-              <dt>Uploaded</dt>
-              <dd>{snapshot.statusCounts.uploaded ?? 0}</dd>
-            </div>
-            <div>
-              <dt>Running</dt>
-              <dd>{snapshot.statusCounts.running ?? 0}</dd>
-            </div>
-            <div>
-              <dt>Completed</dt>
-              <dd>{snapshot.statusCounts.completed ?? 0}</dd>
-            </div>
-            <div>
-              <dt>Failed</dt>
-              <dd>{snapshot.statusCounts.failed ?? 0}</dd>
-            </div>
-          </dl>
+          <div>
+            <dt>Running</dt>
+            <dd>{snapshot.statusCounts.running ?? 0}</dd>
+          </div>
+          <div>
+            <dt>Completed</dt>
+            <dd>{snapshot.statusCounts.completed ?? 0}</dd>
+          </div>
+          <div>
+            <dt>Failed</dt>
+            <dd>{snapshot.statusCounts.failed ?? 0}</dd>
+          </div>
+        </dl>
 
-          <div className={styles.topProducts}>
-            <span className={styles.topProductsLabel}>Top Current Winners</span>
-            {topProducts.length > 0 ? (
-              topProducts.map((product) => (
+        <div className={styles.bannerWinners}>
+          <span className={styles.topProductsLabel}>Top Current Winners</span>
+          {topProducts.length > 0 ? (
+            <div className={styles.topProductsRail}>
+              {topProducts.map((product) => (
                 <div key={product.product} className={styles.topProductRow}>
                   <span>{product.label}</span>
                   <strong>{metricText(product.totalPnl)}</strong>
                 </div>
-              ))
-            ) : (
-              <p className={styles.topProductsEmpty}>No attempts yet.</p>
-            )}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <p className={styles.topProductsEmpty}>No attempts yet.</p>
+          )}
         </div>
       </section>
 
@@ -278,44 +251,23 @@ export function DashboardClient({ secret, initialSnapshot }: DashboardClientProp
             void submitFiles(event.dataTransfer.files);
           }}
         >
+          <input
+            ref={fileInputRef}
+            className={styles.fileInput}
+            type="file"
+            accept=".py"
+            multiple
+            onChange={(event) => {
+              if (event.target.files) {
+                void submitFiles(event.target.files);
+              }
+            }}
+          />
           <div>
             <span className={styles.dropzoneLabel}>Upload traders</span>
             <p className={styles.dropzoneText}>
               Drop one or many <code>.py</code> files here. Each file becomes its own direct backtest run.
             </p>
-          </div>
-
-          <div className={styles.dropzoneActions}>
-            <input
-              ref={fileInputRef}
-              className={styles.fileInput}
-              type="file"
-              accept=".py"
-              multiple
-              onChange={(event) => {
-                if (event.target.files) {
-                  void submitFiles(event.target.files);
-                }
-              }}
-            />
-            <button
-              className={styles.primaryButton}
-              disabled={uploadState.isUploading}
-              onClick={() => fileInputRef.current?.click()}
-              type="button"
-            >
-              {uploadState.isUploading ? "Uploading..." : "Upload .py Files"}
-            </button>
-          </div>
-        </div>
-
-        <div className={styles.expectedProfitCard}>
-          <span className={styles.expectedProfitLabel}>Expected Profit</span>
-          <strong className={styles.expectedProfitValue}>{formatMetric(snapshot.expectedProfit)}</strong>
-          <div className={styles.summaryList}>
-            {snapshot.summaryLines.map((line) => (
-              <code key={line}>{line}</code>
-            ))}
           </div>
         </div>
       </section>
@@ -324,10 +276,13 @@ export function DashboardClient({ secret, initialSnapshot }: DashboardClientProp
 
       <section className={styles.gridSection}>
         {snapshot.families.map((family) => (
-          <article key={family.key} className={styles.familySection}>
+          <article
+            key={family.key}
+            className={styles.familySection}
+            style={{ "--family-color": family.color } as CSSProperties}
+          >
             <header className={styles.familyHeader}>
               <div className={styles.familyTitleGroup}>
-                <span className={styles.familyAccent} style={{ backgroundColor: family.color }} />
                 <div>
                   <p className={styles.familyKey}>{family.key}</p>
                   <h2 className={styles.familyTitle}>{family.title}</h2>
@@ -339,46 +294,23 @@ export function DashboardClient({ secret, initialSnapshot }: DashboardClientProp
               {family.products.map((product) => (
                 <section key={product.product} className={styles.productCard}>
                   <div className={styles.productCardHeader}>
-                    <span className={styles.productCode}>{product.product}</span>
                     <strong className={styles.productLabel}>{product.label}</strong>
                   </div>
 
                   <dl className={styles.metricList}>
-                    <div>
-                      <dt>Total PnL</dt>
-                      <dd>{metricText(product.totalPnl)}</dd>
-                    </div>
-                    <div>
-                      <dt>Mean</dt>
-                      <dd>{metricText(product.meanPnl)}</dd>
-                    </div>
-                    <div>
+                    <div className={styles.metricSecondary}>
                       <dt>Range</dt>
                       <dd>{metricText(product.pnlRange)}</dd>
                     </div>
-                    <div>
+                    <div className={styles.metricPrimary}>
+                      <dt>Mean</dt>
+                      <dd>{metricText(product.meanPnl)}</dd>
+                    </div>
+                    <div className={styles.metricFile}>
                       <dt>File</dt>
                       <dd>{product.fileName ?? "No attempt"}</dd>
                     </div>
                   </dl>
-
-                  {product.uploadId ? (
-                    <div className={styles.cardActions}>
-                      <a
-                        className={styles.secondaryButton}
-                        href={`${downloadBase}/${product.uploadId}/download`}
-                      >
-                        Download
-                      </a>
-                      <button
-                        className={styles.ghostButton}
-                        onClick={() => void handleDelete(product)}
-                        type="button"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  ) : null}
                 </section>
               ))}
             </div>

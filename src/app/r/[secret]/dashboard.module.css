@@ -1,19 +1,10 @@
 .dashboard {
   display: grid;
-  gap: 24px;
+  gap: 16px;
 }
 
-.hero {
-  display: grid;
-  gap: 20px;
-  grid-template-columns: minmax(0, 1.2fr) minmax(20rem, 0.8fr);
-  align-items: stretch;
-}
-
-.heroCopy,
-.statusPanel,
+.statusBanner,
 .dropzone,
-.expectedProfitCard,
 .familySection,
 .terminalSection {
   border: 1px solid var(--border);
@@ -22,19 +13,19 @@
   box-shadow: var(--shadow);
 }
 
-.heroCopy {
-  padding: 28px;
+.statusBanner {
+  display: grid;
+  gap: 14px;
+  padding: 20px 24px;
   background:
     linear-gradient(140deg, rgba(22, 54, 82, 0.84), rgba(7, 19, 27, 0.95)),
     var(--panel);
 }
 
-.kicker,
 .familyKey,
 .terminalKicker,
 .dropzoneLabel,
 .statusLabel,
-.expectedProfitLabel,
 .topProductsLabel {
   margin: 0;
   color: var(--accent);
@@ -43,7 +34,6 @@
   text-transform: uppercase;
 }
 
-.heroTitle,
 .familyTitle,
 .terminalTitle {
   margin: 0;
@@ -51,48 +41,58 @@
   letter-spacing: 0.05em;
 }
 
-.heroTitle {
-  margin-top: 10px;
-  font-size: clamp(2.4rem, 6vw, 4.4rem);
-  line-height: 0.92;
-}
-
-.heroText {
-  max-width: 48rem;
-  margin: 14px 0 0;
-  color: var(--muted);
-  font-size: 1rem;
-  line-height: 1.7;
-}
-
-.statusPanel,
-.expectedProfitCard,
 .terminalSection {
   padding: 24px;
 }
 
-.statusHeader {
+.bannerHeader {
   display: flex;
-  align-items: end;
+  align-items: start;
   justify-content: space-between;
   gap: 16px;
 }
 
+.bannerHeaderGroup {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.bannerStatus {
+  display: grid;
+  gap: 8px;
+}
+
+.bannerText {
+  max-width: 32rem;
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.65;
+  text-align: right;
+}
+
 .statusValue,
-.expectedProfitValue {
+.bannerMetrics dd {
   font-family: var(--font-heading), sans-serif;
+}
+
+.statusValue {
   font-size: 2.8rem;
   letter-spacing: 0.06em;
 }
 
-.statusGrid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-  margin: 20px 0 0;
+.bannerMetrics dd {
+  font-size: 1.5rem;
 }
 
-.statusGrid div,
+.bannerMetrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+}
+
+.bannerMetrics div,
 .topProductRow {
   padding: 14px 16px;
   border: 1px solid rgba(143, 176, 199, 0.14);
@@ -100,7 +100,7 @@
   background: rgba(5, 18, 29, 0.72);
 }
 
-.statusGrid dt,
+.bannerMetrics dt,
 .metricList dt {
   color: var(--muted);
   font-size: 0.76rem;
@@ -108,40 +108,45 @@
   letter-spacing: 0.12em;
 }
 
-.statusGrid dd,
+.bannerMetrics dd,
 .metricList dd {
   margin: 6px 0 0;
 }
 
-.topProducts {
-  margin-top: 18px;
+.bannerWinners {
   display: grid;
   gap: 10px;
 }
 
+.topProductsRail {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
 .topProductsEmpty {
-  margin: 4px 0 0;
+  margin: 0;
   color: var(--muted);
 }
 
 .topProductRow {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   gap: 12px;
 }
 
 .uploadStrip {
-  display: grid;
-  gap: 20px;
-  grid-template-columns: minmax(0, 1fr) minmax(22rem, 0.95fr);
+  display: block;
 }
 
 .dropzone {
   display: grid;
-  gap: 20px;
+  gap: 14px;
   align-items: center;
-  padding: 24px;
+  padding: 18px 22px;
   border-style: dashed;
+  min-height: 7rem;
 }
 
 .dropzoneActive {
@@ -150,16 +155,10 @@
 }
 
 .dropzoneText {
-  max-width: 40rem;
-  margin: 8px 0 0;
+  max-width: 52rem;
+  margin: 6px 0 0;
   color: var(--muted);
   line-height: 1.65;
-}
-
-.dropzoneActions {
-  display: flex;
-  align-items: center;
-  gap: 14px;
 }
 
 .fileInput {
@@ -211,23 +210,6 @@
   color: #ffd4d4;
 }
 
-.expectedProfitCard {
-  display: grid;
-  gap: 16px;
-  background:
-    linear-gradient(160deg, rgba(255, 159, 67, 0.18), rgba(5, 18, 29, 0.96)),
-    var(--panel);
-}
-
-.summaryList {
-  display: grid;
-  gap: 8px;
-  max-height: 18rem;
-  overflow: auto;
-  padding-right: 6px;
-}
-
-.summaryList code,
 .terminalLine code {
   font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
   font-size: 0.88rem;
@@ -245,94 +227,101 @@
 
 .gridSection {
   display: grid;
-  gap: 18px;
+  gap: 12px;
 }
 
 .familySection {
-  padding: 22px;
+  --family-color: #4ecdc4;
+  padding: 14px 16px 16px;
+  border-color: color-mix(in srgb, var(--family-color) 28%, rgba(143, 176, 199, 0.14));
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--family-color) 18%, rgba(17, 40, 58, 0.96)),
+      rgba(7, 17, 27, 0.98)
+    ),
+    var(--panel);
 }
 
 .familyHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 18px;
+  gap: 12px;
 }
 
 .familyTitleGroup {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.familyAccent {
-  width: 10px;
-  align-self: stretch;
-  border-radius: 999px;
+  display: grid;
+  gap: 4px;
 }
 
 .familyTitle {
-  font-size: clamp(1.8rem, 4vw, 2.4rem);
+  font-size: clamp(1.3rem, 2.2vw, 1.8rem);
 }
 
 .familyGrid {
   display: grid;
-  gap: 14px;
+  gap: 10px;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  margin-top: 18px;
+  margin-top: 12px;
 }
 
 .productCard {
   display: flex;
-  min-height: 18rem;
+  min-height: 0;
   flex-direction: column;
-  gap: 18px;
-  padding: 18px;
+  gap: 10px;
+  padding: 12px 14px;
   border: 1px solid rgba(143, 176, 199, 0.15);
-  border-radius: 24px;
+  border-radius: 18px;
   background:
-    linear-gradient(180deg, rgba(11, 34, 53, 0.95), rgba(7, 17, 27, 0.96)),
+    linear-gradient(180deg, rgba(9, 28, 43, 0.82), rgba(4, 13, 21, 0.92)),
     var(--panel-strong);
 }
 
 .productCardHeader {
-  display: grid;
-  gap: 8px;
-}
-
-.productCode {
-  color: rgba(143, 176, 199, 0.78);
-  font-size: 0.76rem;
-  letter-spacing: 0.08em;
+  min-height: 2.8rem;
 }
 
 .productLabel {
   font-family: var(--font-heading), sans-serif;
-  font-size: 1.55rem;
+  display: block;
+  font-size: 1.2rem;
   letter-spacing: 0.04em;
-  line-height: 1;
+  line-height: 1.05;
 }
 
 .metricList {
   display: grid;
-  gap: 12px;
+  gap: 8px;
   margin: 0;
 }
 
 .metricList div {
-  padding: 10px 12px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.03);
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.035);
 }
 
 .metricList dd {
   word-break: break-word;
 }
 
-.cardActions {
-  margin-top: auto;
-  display: flex;
-  gap: 10px;
+.metricPrimary dd {
+  font-family: var(--font-heading), sans-serif;
+  font-size: 1.9rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.metricSecondary dd {
+  font-size: 0.96rem;
+  font-weight: 600;
+}
+
+.metricFile dd {
+  font-size: 0.78rem;
+  font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
 }
 
 .terminalHeader {
@@ -376,18 +365,43 @@
 
 @media (max-width: 1320px) {
   .familyGrid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .topProductsRail {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 1100px) {
-  .hero,
-  .uploadStrip {
-    grid-template-columns: 1fr;
+  .bannerMetrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .familyGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 900px) {
+  .bannerHeader {
+    flex-direction: column;
+  }
+
+  .bannerHeaderGroup {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .bannerText {
+    max-width: none;
+    text-align: left;
+  }
+
+  .topProductsRail {
+    grid-template-columns: 1fr;
+  }
+
   .familyGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -398,29 +412,29 @@
     gap: 18px;
   }
 
-  .heroCopy,
-  .statusPanel,
+  .statusBanner,
   .dropzone,
-  .expectedProfitCard,
   .familySection,
   .terminalSection {
     border-radius: 22px;
     padding: 18px;
   }
 
+  .bannerMetrics {
+    grid-template-columns: 1fr;
+  }
+
   .familyGrid {
     grid-template-columns: 1fr;
   }
 
-  .cardActions,
-  .dropzoneActions,
   .terminalHeader {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .statusHeader {
+  .bannerHeaderGroup {
     flex-direction: column;
-    align-items: start;
+    align-items: stretch;
   }
 }

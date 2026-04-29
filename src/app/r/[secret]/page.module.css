@@ -1,6 +1,6 @@
 .pageShell {
   min-height: 100vh;
-  padding: 24px;
+  padding: 16px;
 }
 
 @media (max-width: 720px) {
