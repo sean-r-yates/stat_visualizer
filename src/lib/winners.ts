@@ -60,10 +60,12 @@ export async function finalizeSuccessfulUpload(input: {
         pw.upload_id,
         pw.total_pnl,
         pw.pnl_range,
-        u.created_at as upload_created_at
+        (
+          select u.created_at
+          from uploads u
+          where u.id = pw.upload_id
+        ) as upload_created_at
       from product_winners pw
-      left join uploads u
-        on u.id = pw.upload_id
       for update
     `;
 
