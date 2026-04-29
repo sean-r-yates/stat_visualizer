@@ -14,7 +14,6 @@ type DashboardClientProps = {
 };
 
 type UploadState = {
-  isDragging: boolean;
   isUploading: boolean;
   isClearing: boolean;
   error: string | null;
@@ -28,10 +27,17 @@ function eventLabel(eventType: string): string {
   return eventType.toUpperCase();
 }
 
+function productTone(meanPnl: number | null, pnlRange: number | null): "positive" | "negative" | "neutral" {
+  if (meanPnl === null || pnlRange === null) {
+    return "neutral";
+  }
+
+  return pnlRange < meanPnl ? "positive" : "negative";
+}
+
 export function DashboardClient({ secret, initialSnapshot }: DashboardClientProps) {
   const [snapshot, setSnapshot] = useState(initialSnapshot);
   const [uploadState, setUploadState] = useState<UploadState>({
-    isDragging: false,
     isUploading: false,
     isClearing: false,
     error: null,
@@ -79,6 +85,14 @@ export function DashboardClient({ secret, initialSnapshot }: DashboardClientProp
         .filter((product) => product.totalPnl !== null)
         .sort((left, right) => (right.totalPnl ?? 0) - (left.totalPnl ?? 0))
         .slice(0, 4),
+    [snapshot.families],
+  );
+
+  const roundExpectedPnl = useMemo(
+    () =>
+      snapshot.families
+        .flatMap((family) => family.products)
+        .reduce((sum, product) => sum + (product.meanPnl ?? 0), 0),
     [snapshot.families],
   );
 
@@ -133,7 +147,6 @@ export function DashboardClient({ secret, initialSnapshot }: DashboardClientProp
       setUploadState((current) => ({
         ...current,
         isUploading: false,
-        isDragging: false,
       }));
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
@@ -180,6 +193,18 @@ export function DashboardClient({ secret, initialSnapshot }: DashboardClientProp
               <span className={styles.statusLabel}>Algorithm Status</span>
               <strong className={styles.statusValue}>{snapshot.activeJobs > 0 ? "Busy" : "Idle"}</strong>
             </div>
+            <input
+              ref={fileInputRef}
+              className={styles.fileInput}
+              type="file"
+              accept=".py"
+              multiple
+              onChange={(event) => {
+                if (event.target.files) {
+                  void submitFiles(event.target.files);
+                }
+              }}
+            />
             <button
               className={styles.primaryButton}
               disabled={uploadState.isUploading}
@@ -189,9 +214,7 @@ export function DashboardClient({ secret, initialSnapshot }: DashboardClientProp
               {uploadState.isUploading ? "Uploading..." : "Upload .py Files"}
             </button>
           </div>
-          <p className={styles.bannerText}>
-            The queue updates live as uploads move through uploaded, running, completed, or failed.
-          </p>
+          <p className={styles.bannerText}>Expected PnL for round 5: {formatMetric(roundExpectedPnl)}</p>
         </div>
         <dl className={styles.bannerMetrics}>
           <div>
@@ -229,49 +252,6 @@ export function DashboardClient({ secret, initialSnapshot }: DashboardClientProp
         </div>
       </section>
 
-      <section className={styles.uploadStrip}>
-        <div
-          className={`${styles.dropzone} ${uploadState.isDragging ? styles.dropzoneActive : ""}`}
-          onDragEnter={(event) => {
-            event.preventDefault();
-            setUploadState((current) => ({ ...current, isDragging: true }));
-          }}
-          onDragOver={(event) => {
-            event.preventDefault();
-          }}
-          onDragLeave={(event) => {
-            event.preventDefault();
-            if (event.currentTarget.contains(event.relatedTarget as Node | null)) {
-              return;
-            }
-            setUploadState((current) => ({ ...current, isDragging: false }));
-          }}
-          onDrop={(event) => {
-            event.preventDefault();
-            void submitFiles(event.dataTransfer.files);
-          }}
-        >
-          <input
-            ref={fileInputRef}
-            className={styles.fileInput}
-            type="file"
-            accept=".py"
-            multiple
-            onChange={(event) => {
-              if (event.target.files) {
-                void submitFiles(event.target.files);
-              }
-            }}
-          />
-          <div>
-            <span className={styles.dropzoneLabel}>Upload traders</span>
-            <p className={styles.dropzoneText}>
-              Drop one or many <code>.py</code> files here. Each file becomes its own direct backtest run.
-            </p>
-          </div>
-        </div>
-      </section>
-
       {uploadState.error ? <p className={styles.errorBanner}>{uploadState.error}</p> : null}
 
       <section className={styles.gridSection}>
@@ -291,28 +271,41 @@ export function DashboardClient({ secret, initialSnapshot }: DashboardClientProp
             </header>
 
             <div className={styles.familyGrid}>
-              {family.products.map((product) => (
-                <section key={product.product} className={styles.productCard}>
-                  <div className={styles.productCardHeader}>
-                    <strong className={styles.productLabel}>{product.label}</strong>
-                  </div>
+              {family.products.map((product) => {
+                const tone = productTone(product.meanPnl, product.pnlRange);
 
-                  <dl className={styles.metricList}>
-                    <div className={styles.metricSecondary}>
-                      <dt>Range</dt>
-                      <dd>{metricText(product.pnlRange)}</dd>
+                return (
+                  <section
+                    key={product.product}
+                    className={`${styles.productCard} ${
+                      tone === "positive"
+                        ? styles.productCardPositive
+                        : tone === "negative"
+                          ? styles.productCardNegative
+                          : styles.productCardNeutral
+                    }`}
+                  >
+                    <div className={styles.productCardHeader}>
+                      <strong className={styles.productLabel}>{product.label}</strong>
                     </div>
-                    <div className={styles.metricPrimary}>
-                      <dt>Mean</dt>
-                      <dd>{metricText(product.meanPnl)}</dd>
-                    </div>
-                    <div className={styles.metricFile}>
-                      <dt>File</dt>
-                      <dd>{product.fileName ?? "No attempt"}</dd>
-                    </div>
-                  </dl>
-                </section>
-              ))}
+
+                    <dl className={styles.metricList}>
+                      <div className={styles.metricSecondary}>
+                        <dt>Range</dt>
+                        <dd>{metricText(product.pnlRange)}</dd>
+                      </div>
+                      <div className={styles.metricPrimary}>
+                        <dt>Mean</dt>
+                        <dd>{metricText(product.meanPnl)}</dd>
+                      </div>
+                      <div className={styles.metricFile}>
+                        <dt>File</dt>
+                        <dd>{product.fileName ?? "No attempt"}</dd>
+                      </div>
+                    </dl>
+                  </section>
+                );
+              })}
             </div>
           </article>
         ))}

@@ -4,7 +4,6 @@
 }
 
 .statusBanner,
-.dropzone,
 .familySection,
 .terminalSection {
   border: 1px solid var(--border);
@@ -24,7 +23,6 @@
 
 .familyKey,
 .terminalKicker,
-.dropzoneLabel,
 .statusLabel,
 .topProductsLabel {
   margin: 0;
@@ -66,8 +64,9 @@
 .bannerText {
   max-width: 32rem;
   margin: 0;
-  color: var(--muted);
-  line-height: 1.65;
+  color: var(--text);
+  font-weight: 600;
+  line-height: 1.45;
   text-align: right;
 }
 
@@ -136,31 +135,6 @@
   gap: 12px;
 }
 
-.uploadStrip {
-  display: block;
-}
-
-.dropzone {
-  display: grid;
-  gap: 14px;
-  align-items: center;
-  padding: 18px 22px;
-  border-style: dashed;
-  min-height: 7rem;
-}
-
-.dropzoneActive {
-  border-color: rgba(78, 205, 196, 0.5);
-  box-shadow: 0 0 0 1px rgba(78, 205, 196, 0.24), var(--shadow);
-}
-
-.dropzoneText {
-  max-width: 52rem;
-  margin: 6px 0 0;
-  color: var(--muted);
-  line-height: 1.65;
-}
-
 .fileInput {
   display: none;
 }
@@ -227,12 +201,12 @@
 
 .gridSection {
   display: grid;
-  gap: 12px;
+  gap: 10px;
 }
 
 .familySection {
   --family-color: #4ecdc4;
-  padding: 14px 16px 16px;
+  padding: 12px 14px 14px;
   border-color: color-mix(in srgb, var(--family-color) 28%, rgba(143, 176, 199, 0.14));
   background:
     linear-gradient(
@@ -252,75 +226,106 @@
 
 .familyTitleGroup {
   display: grid;
-  gap: 4px;
+  gap: 2px;
 }
 
 .familyTitle {
-  font-size: clamp(1.3rem, 2.2vw, 1.8rem);
+  font-size: clamp(1.15rem, 1.8vw, 1.55rem);
 }
 
 .familyGrid {
   display: grid;
-  gap: 10px;
+  gap: 8px;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  margin-top: 12px;
+  margin-top: 8px;
 }
 
 .productCard {
   display: flex;
   min-height: 0;
   flex-direction: column;
-  gap: 10px;
-  padding: 12px 14px;
+  gap: 8px;
+  padding: 10px 12px;
   border: 1px solid rgba(143, 176, 199, 0.15);
-  border-radius: 18px;
+  border-radius: 16px;
   background:
     linear-gradient(180deg, rgba(9, 28, 43, 0.82), rgba(4, 13, 21, 0.92)),
     var(--panel-strong);
 }
 
+.productCardPositive {
+  border-color: rgba(73, 198, 123, 0.34);
+  background:
+    linear-gradient(180deg, rgba(16, 53, 33, 0.88), rgba(5, 21, 12, 0.96)),
+    var(--panel-strong);
+}
+
+.productCardNegative {
+  border-color: rgba(223, 92, 92, 0.34);
+  background:
+    linear-gradient(180deg, rgba(61, 21, 21, 0.88), rgba(24, 7, 10, 0.96)),
+    var(--panel-strong);
+}
+
+.productCardNeutral {
+  border-color: rgba(143, 176, 199, 0.15);
+}
+
 .productCardHeader {
-  min-height: 2.8rem;
+  min-height: 0;
 }
 
 .productLabel {
   font-family: var(--font-heading), sans-serif;
   display: block;
-  font-size: 1.2rem;
+  font-size: 1.05rem;
   letter-spacing: 0.04em;
   line-height: 1.05;
 }
 
 .metricList {
   display: grid;
-  gap: 8px;
+  gap: 6px;
   margin: 0;
 }
 
 .metricList div {
-  padding: 8px 10px;
-  border-radius: 12px;
+  padding: 6px 9px;
+  border-radius: 10px;
   background: rgba(255, 255, 255, 0.035);
+}
+
+.productCardPositive .metricList div {
+  background: rgba(100, 202, 129, 0.08);
+}
+
+.productCardNegative .metricList div {
+  background: rgba(224, 103, 103, 0.08);
 }
 
 .metricList dd {
   word-break: break-word;
 }
 
+.metricList dt {
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+}
+
 .metricPrimary dd {
   font-family: var(--font-heading), sans-serif;
-  font-size: 1.9rem;
+  font-size: 1.55rem;
   font-weight: 700;
   line-height: 1;
 }
 
 .metricSecondary dd {
-  font-size: 0.96rem;
+  font-size: 0.88rem;
   font-weight: 600;
 }
 
 .metricFile dd {
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
 }
 
@@ -413,7 +418,6 @@
   }
 
   .statusBanner,
-  .dropzone,
   .familySection,
   .terminalSection {
     border-radius: 22px;
