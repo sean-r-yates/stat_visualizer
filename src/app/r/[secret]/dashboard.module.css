@@ -141,7 +141,9 @@
 
 .primaryButton,
 .secondaryButton,
-.ghostButton {
+.ghostButton,
+.dangerButton,
+.successButton {
   border-radius: 999px;
   border: 1px solid transparent;
   cursor: pointer;
@@ -154,12 +156,16 @@
 
 .primaryButton:hover,
 .secondaryButton:hover,
-.ghostButton:hover {
+.ghostButton:hover,
+.dangerButton:hover,
+.successButton:hover {
   transform: translateY(-1px);
 }
 
 .primaryButton:disabled,
-.ghostButton:disabled {
+.ghostButton:disabled,
+.dangerButton:disabled,
+.successButton:disabled {
   cursor: not-allowed;
   opacity: 0.7;
   transform: none;
@@ -182,6 +188,24 @@
 
 .ghostButton {
   color: #ffd4d4;
+}
+
+.dangerButton,
+.successButton {
+  padding: 0.72rem 1rem;
+  font-weight: 700;
+}
+
+.dangerButton {
+  background: linear-gradient(135deg, rgba(170, 22, 22, 0.92), rgba(95, 10, 10, 0.96));
+  border-color: rgba(255, 132, 132, 0.34);
+  color: #fff0f0;
+}
+
+.successButton {
+  background: linear-gradient(135deg, rgba(36, 138, 60, 0.92), rgba(12, 87, 34, 0.96));
+  border-color: rgba(129, 226, 154, 0.34);
+  color: #f3fff6;
 }
 
 .terminalLine code {
@@ -347,6 +371,13 @@
   gap: 16px;
 }
 
+.terminalActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
 .terminalBody {
   display: grid;
   gap: 10px;
@@ -364,6 +395,11 @@
   grid-template-columns: auto 1fr;
   gap: 12px;
   align-items: start;
+}
+
+.terminalEmpty {
+  margin: 0;
+  color: var(--muted);
 }
 
 .terminalTag {
@@ -446,6 +482,10 @@
   .terminalHeader {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .terminalActions {
+    justify-content: stretch;
   }
 
   .bannerHeaderGroup {

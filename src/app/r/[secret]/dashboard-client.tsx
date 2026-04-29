@@ -16,8 +16,28 @@ type DashboardClientProps = {
 type UploadState = {
   isUploading: boolean;
   isClearing: boolean;
+  isExporting: boolean;
+  isTruncating: boolean;
   error: string | null;
 };
+
+function parseDownloadFilename(contentDisposition: string | null): string | null {
+  if (!contentDisposition) {
+    return null;
+  }
+
+  const utf8Match = contentDisposition.match(/filename\*=UTF-8''([^;]+)/i);
+  if (utf8Match) {
+    return decodeURIComponent(utf8Match[1]);
+  }
+
+  const asciiMatch = contentDisposition.match(/filename="([^"]+)"/i);
+  if (asciiMatch) {
+    return asciiMatch[1];
+  }
+
+  return null;
+}
 
 function metricText(value: number | null): string {
   return value === null ? "No attempt" : formatMetric(value);
@@ -64,6 +84,8 @@ export function DashboardClient({ secret, initialSnapshot }: DashboardClientProp
   const [uploadState, setUploadState] = useState<UploadState>({
     isUploading: false,
     isClearing: false,
+    isExporting: false,
+    isTruncating: false,
     error: null,
   });
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -228,6 +250,87 @@ export function DashboardClient({ secret, initialSnapshot }: DashboardClientProp
     }
   }
 
+  async function handleTruncateDatabase() {
+    const pin = window.prompt("Enter PIN to truncate every database table.");
+    if (pin === null) {
+      return;
+    }
+
+    setUploadState((current) => ({
+      ...current,
+      isTruncating: true,
+      error: null,
+    }));
+
+    try {
+      const response = await fetch(`${apiBase}/db/truncate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ pin }),
+      });
+
+      if (!response.ok) {
+        const body = (await response.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(body?.error ?? "Could not truncate the database.");
+      }
+
+      await refreshAfterMutation();
+    } catch (error) {
+      setUploadState((current) => ({
+        ...current,
+        error: error instanceof Error ? error.message : "Could not truncate the database.",
+      }));
+    } finally {
+      setUploadState((current) => ({
+        ...current,
+        isTruncating: false,
+      }));
+    }
+  }
+
+  async function handleZipBomb() {
+    setUploadState((current) => ({
+      ...current,
+      isExporting: true,
+      error: null,
+    }));
+
+    try {
+      const response = await fetch(`${apiBase}/db/export`, {
+        cache: "no-store",
+      });
+
+      if (!response.ok) {
+        throw new Error("Could not export the database.");
+      }
+
+      const blob = await response.blob();
+      const downloadUrl = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      const fileName =
+        parseDownloadFilename(response.headers.get("content-disposition")) ?? "stat-visualizer-db.zip";
+
+      anchor.href = downloadUrl;
+      anchor.download = fileName;
+      document.body.append(anchor);
+      anchor.click();
+      anchor.remove();
+      URL.revokeObjectURL(downloadUrl);
+    } catch (error) {
+      setUploadState((current) => ({
+        ...current,
+        error: error instanceof Error ? error.message : "Could not export the database.",
+      }));
+    } finally {
+      setUploadState((current) => ({
+        ...current,
+        isExporting: false,
+      }));
+    }
+  }
+
   return (
     <div className={styles.dashboard}>
       <section className={styles.statusBanner}>
@@ -366,13 +469,29 @@ export function DashboardClient({ secret, initialSnapshot }: DashboardClientProp
         ))}
       </section>
 
-      {snapshot.terminalEvents.length > 0 ? (
-        <section className={styles.terminalSection}>
-          <div className={styles.terminalHeader}>
-            <div>
-              <p className={styles.terminalKicker}>Execution Log</p>
-              <h2 className={styles.terminalTitle}>Backtest Terminal</h2>
-            </div>
+      <section className={styles.terminalSection}>
+        <div className={styles.terminalHeader}>
+          <div>
+            <p className={styles.terminalKicker}>Execution Log</p>
+            <h2 className={styles.terminalTitle}>Backtest Terminal</h2>
+          </div>
+          <div className={styles.terminalActions}>
+            <button
+              className={styles.dangerButton}
+              disabled={uploadState.isTruncating}
+              onClick={() => void handleTruncateDatabase()}
+              type="button"
+            >
+              {uploadState.isTruncating ? "Truncating..." : "DON'T FUCKING TOUCH THIS"}
+            </button>
+            <button
+              className={styles.successButton}
+              disabled={uploadState.isExporting}
+              onClick={() => void handleZipBomb()}
+              type="button"
+            >
+              {uploadState.isExporting ? "Packing..." : "ZIP BOMB"}
+            </button>
             <button
               className={styles.ghostButton}
               disabled={uploadState.isClearing}
@@ -382,16 +501,20 @@ export function DashboardClient({ secret, initialSnapshot }: DashboardClientProp
               {uploadState.isClearing ? "Clearing..." : "Clear"}
             </button>
           </div>
-          <div className={styles.terminalBody}>
-            {snapshot.terminalEvents.map((event) => (
+        </div>
+        <div className={styles.terminalBody}>
+          {snapshot.terminalEvents.length > 0 ? (
+            snapshot.terminalEvents.map((event) => (
               <div key={event.id} className={styles.terminalLine}>
                 <span className={styles.terminalTag}>{eventLabel(event.eventType)}</span>
                 <code>{event.message}</code>
               </div>
-            ))}
-          </div>
-        </section>
-      ) : null}
+            ))
+          ) : (
+            <p className={styles.terminalEmpty}>Terminal is clear.</p>
+          )}
+        </div>
+      </section>
     </div>
   );
 }
