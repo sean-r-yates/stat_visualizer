@@ -27,6 +27,16 @@ function eventLabel(eventType: string): string {
   return eventType.toUpperCase();
 }
 
+function productPnlBounds(dayPnls: Array<number | null>): [number, number] {
+  const values = dayPnls.filter((value): value is number => value !== null);
+
+  if (values.length === 0) {
+    return [0, 0];
+  }
+
+  return [Math.min(...values), Math.max(...values)];
+}
+
 function productTone(
   day2Pnl: number | null,
   day3Pnl: number | null,
@@ -109,6 +119,26 @@ export function DashboardClient({ secret, initialSnapshot }: DashboardClientProp
         .reduce((sum, product) => sum + (product.meanPnl ?? 0), 0),
     [snapshot.families],
   );
+
+  const roundExpectedPnlInterval = useMemo(() => {
+    return snapshot.families
+      .flatMap((family) => family.products)
+      .reduce(
+        (bounds, product) => {
+          const [lowerBound, upperBound] = productPnlBounds([
+            product.day2Pnl,
+            product.day3Pnl,
+            product.day4Pnl,
+          ]);
+
+          return {
+            lower: bounds.lower + lowerBound,
+            upper: bounds.upper + upperBound,
+          };
+        },
+        { lower: 0, upper: 0 },
+      );
+  }, [snapshot.families]);
 
   async function refreshAfterMutation() {
     await loadSnapshot();
@@ -228,7 +258,10 @@ export function DashboardClient({ secret, initialSnapshot }: DashboardClientProp
               {uploadState.isUploading ? "Uploading..." : "Upload .py Files"}
             </button>
           </div>
-          <p className={styles.bannerText}>Expected PnL for round 5: {formatMetric(roundExpectedPnl)}</p>
+          <p className={styles.bannerText}>
+            Expected PnL for round 5: {formatMetric(roundExpectedPnl)} [
+            {formatMetric(roundExpectedPnlInterval.lower)}, {formatMetric(roundExpectedPnlInterval.upper)}]
+          </p>
         </div>
         <dl className={styles.bannerMetrics}>
           <div>
