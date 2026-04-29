@@ -96,6 +96,7 @@ function FrankenstienerPlot({
     const presetBoxes = presets.map<PlotlyData>((preset) => ({
       type: "box",
       name: preset.label,
+      x: [preset.label],
       q1: [preset.summary.lowerQuartile],
       median: [preset.summary.mean],
       q3: [preset.summary.upperQuartile],
@@ -118,17 +119,23 @@ function FrankenstienerPlot({
     return [
       ...presetBoxes,
       {
-        type: "bar",
+        type: "box",
         name: "frankenstein",
         x: ["frankenstein"],
-        y: [customSummary.mean],
-        width: [0.5],
+        q1: [customSummary.lowerQuartile],
+        median: [customSummary.mean],
+        q3: [customSummary.upperQuartile],
+        lowerfence: [customSummary.min],
+        upperfence: [customSummary.max],
+        mean: [customSummary.mean],
+        boxpoints: false,
+        fillcolor: "rgba(78, 205, 196, 0.32)",
+        line: {
+          color: "rgba(78, 205, 196, 0.98)",
+          width: 2,
+        },
         marker: {
-          color: "rgba(78, 205, 196, 0.88)",
-          line: {
-            color: "rgba(237, 246, 255, 0.95)",
-            width: 2,
-          },
+          color: "rgba(78, 205, 196, 0.98)",
         },
         hoverinfo: "text",
         hovertext: [buildHoverText("frankenstein", selectedCount, customSummary)],
@@ -139,8 +146,8 @@ function FrankenstienerPlot({
   const plotLayout = useMemo<PlotlyLayout>(
     () => ({
       autosize: true,
-      barmode: "overlay",
-      boxmode: "group",
+      boxgap: 0.42,
+      boxmode: "overlay",
       dragmode: false,
       font: {
         color: "#edf6ff",
