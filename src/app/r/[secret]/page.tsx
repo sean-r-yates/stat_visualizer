@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { buildDashboardSnapshot } from "@/lib/dashboard";
@@ -23,6 +24,14 @@ export default async function SecretDashboardPage({ params }: PageProps) {
 
   return (
     <main className={styles.pageShell}>
+      <nav className={styles.navRail} aria-label="Dashboard pages">
+        <Link className={`${styles.navLink} ${styles.navLinkActive}`} href={`/r/${secret}`}>
+          Winners
+        </Link>
+        <Link className={styles.navLink} href={`/r/${secret}/frankenstiener`}>
+          Frankenstiener
+        </Link>
+      </nav>
       <DashboardClient secret={secret} initialSnapshot={snapshot} />
     </main>
   );

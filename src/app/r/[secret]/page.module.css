@@ -3,6 +3,31 @@
   padding: 16px;
 }
 
+.navRail {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 14px;
+}
+
+.navLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.55rem;
+  padding: 0.65rem 1rem;
+  border: 1px solid rgba(143, 176, 199, 0.18);
+  border-radius: 999px;
+  background: rgba(5, 18, 29, 0.72);
+  color: var(--text);
+  font-weight: 700;
+}
+
+.navLinkActive {
+  background: linear-gradient(135deg, var(--accent), #2f79ff);
+  color: #03131a;
+}
+
 @media (max-width: 720px) {
   .pageShell {
     padding: 16px;
