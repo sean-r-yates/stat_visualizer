@@ -217,7 +217,7 @@ The app replaces that placeholder with the temporary uploaded file path before s
 Recommended value:
 
 ```text
-rust_backtester --trader __FILE__ --dataset round5 --products full --artifact-mode none
+rust_backtester --trader __FILE__ --artifact-mode none
 ```
 
 ### `BACKTEST_WORKDIR`
@@ -250,7 +250,7 @@ Create `.env.local` in the repo root with values similar to:
 ```bash
 APP_SECRET_SLUG=local-secret-slug-123456
 DATABASE_URL=postgres://user:password@localhost:5432/stat_visualizer
-BACKTEST_COMMAND=rust_backtester --trader __FILE__ --dataset round5 --products full --artifact-mode none
+BACKTEST_COMMAND=rust_backtester --trader __FILE__ --artifact-mode none
 BACKTEST_WORKDIR=C:/path/to/repo
 ```
 
@@ -312,7 +312,7 @@ There is no worker and no Redis/Valkey component.
   - use the bindable DigitalOcean value from the attached database component
 
 - `BACKTEST_COMMAND`
-  - `rust_backtester --trader __FILE__ --dataset round5 --products full --artifact-mode none`
+  - `rust_backtester --trader __FILE__ --artifact-mode none`
 
 - `BACKTEST_WORKDIR`
   - `/app`

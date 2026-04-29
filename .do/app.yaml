@@ -40,7 +40,7 @@ services:
         value: ${stat-db.DATABASE_URL}
       - key: BACKTEST_COMMAND
         scope: RUN_TIME
-        value: rust_backtester --trader __FILE__ --dataset round5 --products full --artifact-mode none
+        value: rust_backtester --trader __FILE__ --artifact-mode none
       - key: BACKTEST_WORKDIR
         scope: RUN_TIME
         value: /app
