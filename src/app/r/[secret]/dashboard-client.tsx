@@ -63,7 +63,7 @@ function productTone(
   day4Pnl: number | null,
   meanPnl: number | null,
   pnlRange: number | null,
-): "gold" | "positive" | "negative" | "neutral" {
+): "orange" | "positive" | "negative" | "neutral" {
   if (day2Pnl === null || day3Pnl === null || day4Pnl === null || meanPnl === null || pnlRange === null) {
     return "neutral";
   }
@@ -73,7 +73,7 @@ function productTone(
   }
 
   if (day2Pnl > 0 && day3Pnl > 0 && day4Pnl > 0) {
-    return pnlRange < meanPnl ? "gold" : "positive";
+    return pnlRange < meanPnl ? "orange" : "positive";
   }
 
   return "neutral";
@@ -434,8 +434,8 @@ export function DashboardClient({ secret, initialSnapshot }: DashboardClientProp
                   <section
                     key={product.product}
                     className={`${styles.productCard} ${
-                      tone === "gold"
-                        ? styles.productCardGold
+                      tone === "orange"
+                        ? styles.productCardOrange
                         : tone === "positive"
                         ? styles.productCardPositive
                         : tone === "negative"
