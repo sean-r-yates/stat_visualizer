@@ -1,7 +1,7 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import { startTransition, useEffect, useMemo, useState } from "react";
+import { startTransition, useEffect, useMemo, useRef, useState } from "react";
 
 import { formatMetric } from "@/lib/dashboard-types";
 import type {
@@ -11,6 +11,7 @@ import type {
   PredictionSummary,
 } from "@/lib/frankenstiener-types";
 import type { ProductKey } from "@/lib/products";
+import type { PlotlyConfig, PlotlyData, PlotlyLayout } from "plotly.js-dist-min";
 
 import styles from "./frankenstiener.module.css";
 
@@ -67,98 +68,193 @@ function downloadBlueprint(rows: Array<{ asset: ProductKey; strategy: string }>)
   URL.revokeObjectURL(downloadUrl);
 }
 
-function getScaleBounds(summaries: PredictionSummary[]): { min: number; max: number } {
-  const values = summaries.flatMap((summary) => [summary.min, summary.max, 0]);
-  const min = Math.min(...values);
-  const max = Math.max(...values);
-
-  if (min === max) {
-    return {
-      min: min - 1,
-      max: max + 1,
-    };
-  }
-
-  return { min, max };
+function buildHoverText(label: string, selectedCount: number, summary: PredictionSummary): string {
+  return [
+    `<b>${label}</b>`,
+    `${selectedCount} assets`,
+    `Min: ${formatMetric(summary.min)}`,
+    `Q1: ${formatMetric(summary.lowerQuartile)}`,
+    `Mean: ${formatMetric(summary.mean)}`,
+    `Q3: ${formatMetric(summary.upperQuartile)}`,
+    `Max: ${formatMetric(summary.max)}`,
+  ].join("<br>");
 }
 
-function positionFor(value: number, scaleMin: number, scaleMax: number): number {
-  return ((value - scaleMin) / (scaleMax - scaleMin)) * 100;
-}
-
-function PlotColumn({
-  label,
+function FrankenstienerPlot({
+  customSummary,
+  presets,
   selectedCount,
-  summary,
-  scaleMin,
-  scaleMax,
-  variant,
 }: {
-  label: string;
+  customSummary: PredictionSummary;
+  presets: FrankenstienerPreset[];
   selectedCount: number;
-  summary: PredictionSummary;
-  scaleMin: number;
-  scaleMax: number;
-  variant: "box" | "bar";
 }) {
-  const minPosition = positionFor(summary.min, scaleMin, scaleMax);
-  const maxPosition = positionFor(summary.max, scaleMin, scaleMax);
-  const lowerQuartilePosition = positionFor(summary.lowerQuartile, scaleMin, scaleMax);
-  const upperQuartilePosition = positionFor(summary.upperQuartile, scaleMin, scaleMax);
-  const meanPosition = positionFor(summary.mean, scaleMin, scaleMax);
-  const zeroPosition = positionFor(0, scaleMin, scaleMax);
-  const barBottom = Math.min(zeroPosition, meanPosition);
-  const barHeight = Math.max(Math.abs(meanPosition - zeroPosition), 1.4);
+  const plotRef = useRef<HTMLDivElement | null>(null);
+  const [plotError, setPlotError] = useState<string | null>(null);
+
+  const plotData = useMemo<PlotlyData[]>(() => {
+    const presetBoxes = presets.map<PlotlyData>((preset) => ({
+      type: "box",
+      name: preset.label,
+      q1: [preset.summary.lowerQuartile],
+      median: [preset.summary.mean],
+      q3: [preset.summary.upperQuartile],
+      lowerfence: [preset.summary.min],
+      upperfence: [preset.summary.max],
+      mean: [preset.summary.mean],
+      boxpoints: false,
+      fillcolor: "rgba(255, 159, 67, 0.22)",
+      line: {
+        color: "rgba(255, 177, 85, 0.95)",
+        width: 2,
+      },
+      marker: {
+        color: "rgba(255, 177, 85, 0.95)",
+      },
+      hoverinfo: "text",
+      hovertext: [buildHoverText(preset.label, preset.selectedCount, preset.summary)],
+    }));
+
+    return [
+      ...presetBoxes,
+      {
+        type: "bar",
+        name: "frankenstein",
+        x: ["frankenstein"],
+        y: [customSummary.mean],
+        width: [0.5],
+        marker: {
+          color: "rgba(78, 205, 196, 0.88)",
+          line: {
+            color: "rgba(237, 246, 255, 0.95)",
+            width: 2,
+          },
+        },
+        hoverinfo: "text",
+        hovertext: [buildHoverText("frankenstein", selectedCount, customSummary)],
+      },
+    ];
+  }, [customSummary, presets, selectedCount]);
+
+  const plotLayout = useMemo<PlotlyLayout>(
+    () => ({
+      autosize: true,
+      barmode: "overlay",
+      boxmode: "group",
+      dragmode: false,
+      font: {
+        color: "#edf6ff",
+        family: '"Trebuchet MS", "Gill Sans", "Segoe UI", sans-serif',
+        size: 12,
+      },
+      hoverlabel: {
+        bgcolor: "#06131d",
+        bordercolor: "rgba(143, 176, 199, 0.35)",
+        font: {
+          color: "#edf6ff",
+        },
+      },
+      margin: {
+        b: 80,
+        l: 74,
+        r: 18,
+        t: 18,
+      },
+      paper_bgcolor: "rgba(0,0,0,0)",
+      plot_bgcolor: "rgba(2, 11, 18, 0.72)",
+      showlegend: false,
+      xaxis: {
+        automargin: true,
+        color: "#edf6ff",
+        fixedrange: true,
+        gridcolor: "rgba(143, 176, 199, 0.08)",
+        linecolor: "rgba(143, 176, 199, 0.26)",
+        tickangle: -18,
+        tickfont: {
+          color: "#edf6ff",
+          size: 11,
+        },
+        title: "",
+        zeroline: false,
+      },
+      yaxis: {
+        automargin: true,
+        color: "#edf6ff",
+        fixedrange: true,
+        gridcolor: "rgba(143, 176, 199, 0.14)",
+        linecolor: "rgba(143, 176, 199, 0.26)",
+        tickformat: ",.0f",
+        title: {
+          text: "Projected PnL",
+          font: {
+            color: "#8fb0c7",
+            size: 12,
+          },
+        },
+        zeroline: true,
+        zerolinecolor: "rgba(237, 246, 255, 0.34)",
+        zerolinewidth: 1,
+      },
+    }),
+    [],
+  );
+
+  const plotConfig = useMemo<PlotlyConfig>(
+    () => ({
+      displayModeBar: false,
+      responsive: true,
+      scrollZoom: false,
+    }),
+    [],
+  );
+
+  useEffect(() => {
+    let isCancelled = false;
+    const plotNode = plotRef.current;
+
+    if (!plotNode) {
+      return undefined;
+    }
+
+    void import("plotly.js-dist-min")
+      .then((plotlyModule) => {
+        if (isCancelled) {
+          return undefined;
+        }
+
+        setPlotError(null);
+        return plotlyModule.default.react(plotNode, plotData, plotLayout, plotConfig);
+      })
+      .catch(() => {
+        if (!isCancelled) {
+          setPlotError("Could not render Plotly chart.");
+        }
+      });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [plotConfig, plotData, plotLayout]);
+
+  useEffect(() => {
+    const plotNode = plotRef.current;
+
+    return () => {
+      if (!plotNode) {
+        return;
+      }
+
+      void import("plotly.js-dist-min").then((plotlyModule) => {
+        plotlyModule.default.purge(plotNode);
+      });
+    };
+  }, []);
 
   return (
-    <article className={`${styles.plotColumn} ${variant === "bar" ? styles.plotColumnCustom : ""}`}>
-      <div className={styles.plotArea} aria-hidden="true">
-        {variant === "box" ? (
-          <>
-            <span
-              className={styles.whisker}
-              style={
-                {
-                  "--bottom": `${minPosition}%`,
-                  "--height": `${Math.max(maxPosition - minPosition, 1)}%`,
-                } as CSSProperties
-              }
-            />
-            <span className={styles.whiskerCap} style={{ "--bottom": `${minPosition}%` } as CSSProperties} />
-            <span className={styles.whiskerCap} style={{ "--bottom": `${maxPosition}%` } as CSSProperties} />
-            <span
-              className={styles.quartileBox}
-              style={
-                {
-                  "--bottom": `${lowerQuartilePosition}%`,
-                  "--height": `${Math.max(upperQuartilePosition - lowerQuartilePosition, 1.4)}%`,
-                } as CSSProperties
-              }
-            />
-            <span className={styles.meanMarker} style={{ "--bottom": `${meanPosition}%` } as CSSProperties} />
-          </>
-        ) : (
-          <>
-            <span className={styles.zeroLine} style={{ "--bottom": `${zeroPosition}%` } as CSSProperties} />
-            <span
-              className={styles.customBar}
-              style={
-                {
-                  "--bottom": `${barBottom}%`,
-                  "--height": `${barHeight}%`,
-                } as CSSProperties
-              }
-            />
-            <span className={styles.meanMarker} style={{ "--bottom": `${meanPosition}%` } as CSSProperties} />
-          </>
-        )}
-      </div>
-      <div className={styles.plotCaption}>
-        <strong>{label}</strong>
-        <span>{selectedCount} assets</span>
-        <span>{formatMetric(summary.mean)}</span>
-      </div>
-    </article>
+    <div className={styles.plotlyFrame}>
+      {plotError ? <p className={styles.plotError}>{plotError}</p> : null}
+      <div className={styles.plotlyChart} ref={plotRef} />
+    </div>
   );
 }
 
@@ -218,11 +314,6 @@ export function FrankenstienerClient({ secret, initialSnapshot }: Frankenstiener
   const customSummary = useMemo(
     () => sumSummaries(selectedRows.map((row) => row.candidate)),
     [selectedRows],
-  );
-
-  const scaleBounds = useMemo(
-    () => getScaleBounds([...snapshot.presets.map((preset) => preset.summary), customSummary]),
-    [customSummary, snapshot.presets],
   );
 
   async function refreshSnapshot() {
@@ -333,27 +424,11 @@ export function FrankenstienerClient({ secret, initialSnapshot }: Frankenstiener
           ))}
         </div>
 
-        <div className={styles.plotGrid}>
-          {snapshot.presets.map((preset) => (
-            <PlotColumn
-              key={preset.key}
-              label={preset.label}
-              scaleMax={scaleBounds.max}
-              scaleMin={scaleBounds.min}
-              selectedCount={preset.selectedCount}
-              summary={preset.summary}
-              variant="box"
-            />
-          ))}
-          <PlotColumn
-            label="frankenstein"
-            scaleMax={scaleBounds.max}
-            scaleMin={scaleBounds.min}
-            selectedCount={selectedRows.length}
-            summary={customSummary}
-            variant="bar"
-          />
-        </div>
+        <FrankenstienerPlot
+          customSummary={customSummary}
+          presets={snapshot.presets}
+          selectedCount={selectedRows.length}
+        />
       </section>
 
       <section className={styles.selectorPanel}>

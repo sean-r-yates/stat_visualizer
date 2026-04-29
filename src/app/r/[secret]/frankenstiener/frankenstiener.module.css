@@ -150,113 +150,34 @@
   color: #d9fbf7;
 }
 
-.plotGrid {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 10px;
-  min-height: 22rem;
-}
-
-.plotColumn {
-  display: grid;
-  grid-template-rows: minmax(16rem, 1fr) auto;
-  gap: 10px;
-  min-width: 0;
-  padding: 14px;
+.plotlyFrame {
+  position: relative;
+  min-height: 30rem;
+  overflow: hidden;
   border: 1px solid rgba(143, 176, 199, 0.16);
   border-radius: 18px;
   background:
-    linear-gradient(180deg, rgba(9, 28, 43, 0.82), rgba(4, 13, 21, 0.92)),
+    linear-gradient(180deg, rgba(9, 28, 43, 0.78), rgba(4, 13, 21, 0.92)),
     var(--panel-strong);
 }
 
-.plotColumnCustom {
-  border-color: rgba(78, 205, 196, 0.42);
-  background:
-    linear-gradient(180deg, rgba(11, 54, 55, 0.86), rgba(4, 18, 21, 0.96)),
-    var(--panel-strong);
-}
-
-.plotArea {
-  position: relative;
-  min-height: 16rem;
-  border-radius: 12px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 1px) 0 0 / 100% 25%,
-    rgba(2, 11, 18, 0.72);
-  overflow: hidden;
-}
-
-.whisker,
-.quartileBox,
-.customBar,
-.meanMarker,
-.whiskerCap,
-.zeroLine {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.whisker {
-  bottom: var(--bottom);
-  width: 2px;
-  height: var(--height);
-  background: rgba(237, 246, 255, 0.62);
-}
-
-.whiskerCap {
-  bottom: var(--bottom);
-  width: 46%;
-  height: 2px;
-  background: rgba(237, 246, 255, 0.64);
-}
-
-.quartileBox {
-  bottom: var(--bottom);
-  width: min(4.2rem, 62%);
-  height: var(--height);
-  border: 1px solid rgba(255, 159, 67, 0.74);
-  border-radius: 8px;
-  background: rgba(255, 159, 67, 0.24);
-}
-
-.customBar {
-  bottom: var(--bottom);
-  width: min(5rem, 66%);
-  height: var(--height);
-  border-radius: 10px 10px 6px 6px;
-  background: linear-gradient(180deg, #4ecdc4, #2f79ff);
-  box-shadow: 0 0 22px rgba(78, 205, 196, 0.16);
-}
-
-.meanMarker {
-  bottom: var(--bottom);
-  width: min(5.2rem, 70%);
-  height: 3px;
-  border-radius: 999px;
-  background: #edf6ff;
-  box-shadow: 0 0 0 2px rgba(3, 19, 26, 0.65);
-}
-
-.zeroLine {
-  bottom: var(--bottom);
+.plotlyChart {
   width: 100%;
-  height: 1px;
-  background: rgba(143, 176, 199, 0.35);
+  min-height: 30rem;
 }
 
-.plotCaption {
-  display: grid;
-  gap: 4px;
-  min-height: 4.8rem;
-}
-
-.plotCaption strong {
-  font-family: var(--font-heading), sans-serif;
-  font-size: 1.05rem;
-  letter-spacing: 0.05em;
-  text-transform: capitalize;
+.plotError {
+  position: absolute;
+  z-index: 1;
+  top: 14px;
+  right: 16px;
+  margin: 0;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid rgba(255, 107, 107, 0.35);
+  border-radius: 999px;
+  background: rgba(74, 14, 14, 0.72);
+  color: #ffc5c5;
+  font-size: 0.86rem;
 }
 
 .familyList {
@@ -341,10 +262,6 @@
 }
 
 @media (max-width: 1320px) {
-  .plotGrid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
   .productGrid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -358,7 +275,6 @@
   }
 
   .heroMetrics,
-  .plotGrid,
   .productGrid {
     grid-template-columns: 1fr;
   }
