@@ -115,7 +115,7 @@ function prepareEntry(input: ZipEntryInput, localHeaderOffset: number): ZipPrepa
   };
 }
 
-export function createZipArchive(entries: ZipEntryInput[]): Uint8Array {
+export function createZipArchive(entries: ZipEntryInput[]): ArrayBuffer {
   const preparedEntries: ZipPreparedEntry[] = [];
   let localSectionLength = 0;
 
@@ -156,5 +156,5 @@ export function createZipArchive(entries: ZipEntryInput[]): Uint8Array {
   writeUint16(endOfCentralDirectory, 20, 0);
   archive.set(endOfCentralDirectory, offset);
 
-  return archive;
+  return archive.buffer;
 }
