@@ -338,6 +338,7 @@ The production image:
 - starts from `node:22-bookworm-slim`
 - installs build tools, Python, Python development headers, Rust, and Cargo
 - installs the latest `rust_backtester` available from `cargo install`
+- bundles the Round 5 dataset files under `/app/datasets/round5`
 - installs Node dependencies with `pnpm`
 - builds the Next.js app
 - starts the web server on port `3000`

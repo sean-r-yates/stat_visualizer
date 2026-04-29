@@ -23,6 +23,7 @@ RUN cargo install rust_backtester
 WORKDIR /app
 
 COPY package.json pnpm-lock.yaml tsconfig.json next-env.d.ts next.config.ts ./
+COPY datasets ./datasets
 COPY src ./src
 
 RUN pnpm install --frozen-lockfile
